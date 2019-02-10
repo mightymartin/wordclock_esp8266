@@ -4,6 +4,8 @@ static Ticker LDRTimer(LDRUpdate, 1000);
 
 static uint16 measureBuffer[LDR_MEASURE_COUNT];
 
+static uint8 useLDR = 1; //TODO Config
+
 void LDRInit(){
     LDRTimer.start();
     LDRUpdate();
@@ -33,7 +35,11 @@ uint16 LDRgetValue(){
 }
     
 uint8 LDRgetBrightness(){
-    return 0;
+    if(useLDR){
+        return 0;
+    }else{
+        return 255;
+    }    
 }
     
     // void doLDRLogic() {   

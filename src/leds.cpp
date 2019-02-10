@@ -3,8 +3,8 @@
 static Ticker LedTimer(LedUpdate, LED_MAX_FADE_DURATION/LED_MAX_FADE_STEPS);
 static NeoPixelBus<LED_PIXEL_TYP, LED_PIXEL_METHOD> neoPixelStrip(LED_COUNT, LED_PIXEL_PIN);
 
-static uint8 uiDirty = 0;
-static uint16       brightnessStep = LED_MAX_BRIGHTNESS_STEPS-1; //TODO aus config
+static uint8    uiDirty = 0;
+static uint16   brightnessStep = LED_MAX_BRIGHTNESS_STEPS-1; //TODO aus config
 
 static LedObject ledObjects[LED_COUNT];
 

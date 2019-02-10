@@ -3,7 +3,7 @@
 static uint16 colorCirclePosition    = 0;
 
 static uint8  colorMode              = COLOR_MODE_RAINBOW_VERTI; //TODO aus config
-static uint8  colorRaimbowRotate     = 1;      //TODO aus config
+static uint8  colorRainbowRotate     = 1;      //TODO aus config
 static uint32 colorCircleDuration    = 600000; //TODO aus config (seconds 60-600) 
 static uint8  colorPlainRed          = 128;    //TODO aus config
 static uint8  colorPlainGreen        = 255;    //TODO aus config
@@ -42,7 +42,7 @@ void ColorUpdate(){
     }
 
     if(colorMode == COLOR_MODE_RAINBOW_SERPENTINE){
-        uint16 locColorCircle = (colorRaimbowRotate == 1) ? colorCirclePosition : 0;
+        uint16 locColorCircle = (colorRainbowRotate == 1) ? colorCirclePosition : 0;
         for(uint8 ledNum = 0; ledNum < LED_COUNT; ledNum++){
             locColorCircle = locColorCircle + (COLOR_CIRCLE_MAX / (LED_COUNT - 1));
             if(locColorCircle > COLOR_CIRCLE_MAX){
@@ -54,7 +54,7 @@ void ColorUpdate(){
     } 
 
     if(colorMode == COLOR_MODE_RAINBOW_HORI || colorMode == COLOR_MODE_RAINBOW_HORI_I){
-        uint16 locColorCircle = (colorRaimbowRotate == 1) ? colorCirclePosition : 0;
+        uint16 locColorCircle = (colorRainbowRotate == 1) ? colorCirclePosition : 0;
         for(uint8 col = 0; col < LED_MATRIX_COLS; col++){
             locColorCircle = locColorCircle + (COLOR_CIRCLE_MAX / (LED_MATRIX_COLS - 1));
             if(locColorCircle > COLOR_CIRCLE_MAX){
@@ -77,7 +77,7 @@ void ColorUpdate(){
     }
     
     if(colorMode == COLOR_MODE_RAINBOW_VERTI || colorMode == COLOR_MODE_RAINBOW_VERTI_I){
-        uint16 locColorCircle = (colorRaimbowRotate == 1) ? colorCirclePosition : 0;
+        uint16 locColorCircle = (colorRainbowRotate == 1) ? colorCirclePosition : 0;
         for(uint8 row = 0; row < LED_MATRIX_ROWS; row++){                
             locColorCircle = locColorCircle + (COLOR_CIRCLE_MAX / (LED_MATRIX_ROWS - 1));
             if(locColorCircle > COLOR_CIRCLE_MAX){
