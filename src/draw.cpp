@@ -4,7 +4,7 @@
 
 
 //Config
-static uint8 drawMode                   = DRAW_MODE_CLOCK; //TODO aus config
+static uint8 drawMode                   = DRAW_MODE_TEMP; //TODO aus config
 
 static uint8 drawClockRegion            = 2; //TODO aus config
 static uint8 drawClockItIsMode          = 1; //TODO aus config

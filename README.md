@@ -3,6 +3,7 @@ Wordclock based on an ESP8266 / WS2812
 Hardware:
 - LDR with voltagedevider on A0 
 - WS2866 via levelshifter on RXD0 
+- Temp Sensor (to be determined)
 
 Features:
 - defineable hardware layout 
@@ -25,7 +26,5 @@ Todos befor V0:
 - MQTT Sub: ON/OFF && BRIGHTNESS && COLORMODE && DISPLAYMODE (Non persistent)
 - MQTT Pub: current config as JSON to broker
 
-Bug:
-- Color HUE value at color rotate flips on overflow
 
 

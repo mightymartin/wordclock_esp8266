@@ -10,7 +10,7 @@ struct ColorObject {
     uint8 b = 0;    
 };
 
-#define COLOR_CIRCLE_MAX               360
+#define COLOR_CIRCLE_STEPS             360
 
 #define COLOR_MODE_PLAIN               0
 #define COLOR_MODE_RAINBOW_SERPENTINE  1
@@ -28,7 +28,7 @@ extern void ColorUpdate();
 
 extern void ColorSetMode(uint8 mode);
 
-extern ColorObject hsv_to_rgb (uint8 h,uint8 s,uint8 v);
+extern ColorObject hsv_to_rgb(uint16 h, uint16 s, uint16 v);
 
  
 

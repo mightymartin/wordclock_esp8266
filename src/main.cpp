@@ -121,11 +121,6 @@ TODO
 Wifif REset on flash (wifi discconect)
 json datastore / eeprom?
 mqtt
-draw
-draw timer
-ntp
-color
-uhrzeit / sprachen
 functions
 
 

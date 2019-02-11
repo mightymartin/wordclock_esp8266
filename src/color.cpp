@@ -4,7 +4,7 @@ static uint16 colorCirclePosition    = 0;
 
 static uint8  colorMode              = COLOR_MODE_RAINBOW_VERTI; //TODO aus config
 static uint8  colorRainbowRotate     = 1;      //TODO aus config
-static uint32 colorCircleDuration    = 600000; //TODO aus config (seconds 60-600) 
+static uint32 colorCircleDuration    = 60000; //TODO aus config (seconds 60-600) 
 static uint8  colorPlainRed          = 128;    //TODO aus config
 static uint8  colorPlainGreen        = 255;    //TODO aus config
 static uint8  colorPlainBlue         = 0;      //TODO aus config
@@ -23,7 +23,7 @@ void ColorTick(){
 void ColorUpdate(){
     //Farbrad weiter drehen
     colorCirclePosition++;
-    if(colorCirclePosition > COLOR_CIRCLE_MAX){
+    if(colorCirclePosition > COLOR_CIRCLE_STEPS - 1){
         colorCirclePosition = 0;
     }
 
@@ -44,9 +44,9 @@ void ColorUpdate(){
     if(colorMode == COLOR_MODE_RAINBOW_SERPENTINE){
         uint16 locColorCircle = (colorRainbowRotate == 1) ? colorCirclePosition : 0;
         for(uint8 ledNum = 0; ledNum < LED_COUNT; ledNum++){
-            locColorCircle = locColorCircle + (COLOR_CIRCLE_MAX / (LED_COUNT - 1));
-            if(locColorCircle > COLOR_CIRCLE_MAX){
-                locColorCircle = locColorCircle - COLOR_CIRCLE_MAX;
+            locColorCircle = locColorCircle + (COLOR_CIRCLE_STEPS / (LED_COUNT - 1));
+            if(locColorCircle > COLOR_CIRCLE_STEPS - 1){
+                locColorCircle = locColorCircle - COLOR_CIRCLE_STEPS;
             }
             ColorObject rgb = hsv_to_rgb(locColorCircle,255,255);
             LedSetColor(ledNum, rgb.r, rgb.g, rgb.b);
@@ -56,9 +56,9 @@ void ColorUpdate(){
     if(colorMode == COLOR_MODE_RAINBOW_HORI || colorMode == COLOR_MODE_RAINBOW_HORI_I){
         uint16 locColorCircle = (colorRainbowRotate == 1) ? colorCirclePosition : 0;
         for(uint8 col = 0; col < LED_MATRIX_COLS; col++){
-            locColorCircle = locColorCircle + (COLOR_CIRCLE_MAX / (LED_MATRIX_COLS - 1));
-            if(locColorCircle > COLOR_CIRCLE_MAX){
-                locColorCircle = locColorCircle - COLOR_CIRCLE_MAX;
+            locColorCircle = locColorCircle + (COLOR_CIRCLE_STEPS / (LED_MATRIX_COLS - 1));
+            if(locColorCircle > COLOR_CIRCLE_STEPS - 1){
+                locColorCircle = locColorCircle - COLOR_CIRCLE_STEPS;
             }
 
             ColorObject rgb = hsv_to_rgb(locColorCircle,255,255);
@@ -79,9 +79,9 @@ void ColorUpdate(){
     if(colorMode == COLOR_MODE_RAINBOW_VERTI || colorMode == COLOR_MODE_RAINBOW_VERTI_I){
         uint16 locColorCircle = (colorRainbowRotate == 1) ? colorCirclePosition : 0;
         for(uint8 row = 0; row < LED_MATRIX_ROWS; row++){                
-            locColorCircle = locColorCircle + (COLOR_CIRCLE_MAX / (LED_MATRIX_ROWS - 1));
-            if(locColorCircle > COLOR_CIRCLE_MAX){
-                locColorCircle = locColorCircle - COLOR_CIRCLE_MAX;
+            locColorCircle = locColorCircle + (COLOR_CIRCLE_STEPS / (LED_MATRIX_ROWS - 1));
+            if(locColorCircle > COLOR_CIRCLE_STEPS - 1){
+                locColorCircle = locColorCircle - COLOR_CIRCLE_STEPS;
             }
 
             ColorObject rgb = hsv_to_rgb(locColorCircle,255,255);
@@ -104,61 +104,65 @@ void ColorSetMode(uint8 mode){
     colorMode = mode;
 }
 
-ColorObject hsv_to_rgb (uint8 h,uint8 s,uint8 v){
-    unsigned char diff;
-    uint16 r = 0, g = 0 ,b = 0;
-    
-    //Winkel im Farbkeis 0 - 360 in 1 Grad Schritten
-    //h = (englisch hue) Farbwert
-    //1 Grad Schrittweite, 4.25 Steigung pro Schritt bei 60 Grad
 
-    if(h<61){
-        r = 255;
-        b = 0;
-        g = (425 * h) / 100;
-    }else if(h < 121){
-        g = 255;
-        b = 0;
-        r = 255 - ((425 * (h-60))/100);
-    }else if(h < 181){
-        r = 0;
-        g = 255;
-        b = (425 * (h-120))/100;
-    }else if(h < 241){
-        r = 0;
-        b = 255;
-        g = 255 - ((425 * (h-180))/100);
-    }else if(h < 301){
-        g = 0;
-        b = 255;
-        r = (425 * (h-240))/100;
-    }else if(h< 361){
-        r = 255;
-        g = 0;
-        b = 255 - ((425 * (h-300))/100);
-    }   
-        
-    //Berechnung der Farbsättigung
-    //s = (englisch saturation) Farbsättigung
-    s = 255 - s; //Kehrwert berechnen
-    diff = ((255 - r) * s)/255;
-    r = r + diff;
-    diff = ((255 - g) * s)/255;
-    g = g + diff;
-    diff = ((255 - b) * s)/255;
-    b = b + diff;
-        
-    //Berechnung der Dunkelstufe
-    //v = (englisch value) Wert Dunkelstufe einfacher Dreisatz 0..100%
-    r = (r * v)/255;   
-    g = (g * v)/255;     
-    b = (b * v)/255;   
 
+
+
+ColorObject hsv_to_rgb(uint16 hue, uint16 sat, uint16 val) {
+    /* 
+     convert hue, saturation and brightness ( HSB/HSV ) to RGB         
+    */
+
+    uint16 r =val;
+    uint16 g =val;
+    uint16 b =val;
+    uint16 base = ((255 - sat) * val)>>8;
+
+    if (sat != 0) { // Acromatic color (gray). Hue doesn't mind.
+        
+        switch(hue/60) {
+            case 0:
+                r = val;
+                g = (((val-base)*hue)/60)+base;
+                b = base;
+            break;
+
+            case 1:
+                r = (((val-base)*(60-(hue%60)))/60)+base;
+                g = val;
+                b = base;
+            break;
+
+            case 2:
+                r = base;
+                g = val;
+                b = (((val-base)*(hue%60))/60)+base;
+            break;
+
+            case 3:
+                r = base;
+                g = (((val-base)*(60-(hue%60)))/60)+base;
+                b = val;
+            break;
+
+            case 4:
+                r = (((val-base)*(hue%60))/60)+base;
+                g = base;
+                b = val;
+            break;
+
+            case 5:
+                r = val;
+                g = base;
+                b = (((val-base)*(60-(hue%60)))/60)+base;
+            break;
+        }
+    }
     ColorObject color;
-    
+        
     color.r = r;
     color.g = g;
     color.b = b;
 
-    return color;  
+    return color; 
 }
