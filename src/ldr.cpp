@@ -1,10 +1,9 @@
 #include "ldr.h"
+#include "settings.h"
 
 static Ticker LDRTimer(LDRUpdate, 1000); 
 
 static uint16 measureBuffer[LDR_MEASURE_COUNT];
-
-static uint8 useLDR = 1; //TODO Config
 
 void LDRInit(){
     LDRTimer.start();
@@ -35,21 +34,10 @@ uint16 LDRgetValue(){
 }
     
 uint8 LDRgetBrightness(){
-    if(useLDR){
+    //TODO umsetzung nach user defined treshhold table
+    if(settings.u_LDR){
         return 0;
     }else{
         return 255;
     }    
 }
-    
-    // void doLDRLogic() {   
-    // if(millis() >= waitUntilLDR) {
-    //     waitUntilLDR = millis();
-    //     int temp = analogRead(A0);
-    //     temp = temp - G.ldrCal;
-    //     if (temp >= 900 ) temp = 900;
-    //     if (temp <= 1 ) temp = 1;
-    //     ldrVal = map(temp, 1, 900, 1, 100);
-    //     waitUntilLDR += oneseconddelay;
-    // }
-    // }

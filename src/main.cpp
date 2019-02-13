@@ -13,6 +13,7 @@
 #include "timeNTP.h"
 #include "draw.h"
 #include "ldr.h"
+#include "settings.h"
 
 //##############################
 //## Instances
@@ -97,6 +98,9 @@ void setup() {
 
   log("--- Init End ---");
 
+  Serial.println(SettingsGetChecksum()); 
+  settings.c_mode = 2;
+  Serial.println(SettingsGetChecksum()); 
 }
 
 //##############################

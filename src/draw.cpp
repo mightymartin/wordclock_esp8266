@@ -1,14 +1,6 @@
 #include "draw.h"
+#include "settings.h"
 
-
-
-
-//Config
-static uint8 drawMode                   = DRAW_MODE_TEMP; //TODO aus config
-
-static uint8 drawClockRegion            = 2; //TODO aus config
-static uint8 drawClockItIsMode          = 1; //TODO aus config
-static uint8 drawClockFadeMode          = 1; //TODO aus config
 
 //Worker Vars
 static uint8 drawClockLastSeconds       = 0;
@@ -29,25 +21,24 @@ void DrawTick(){
 }
 
 void DrawUpdate(){
-    if(drawMode == DRAW_MODE_CLOCK){
+    if(settings.d_mode == DRAW_MODE_CLOCK){
         if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes){   
             Serial.println(TimeHours()); //TODO Debug
             Serial.println(TimeMinutes()); //TODO Debug         
             DrawUpdateClock(TimeHours(), TimeMinutes());
         }
-    }
-
-    if(drawMode == DRAW_MODE_SECONDS){
+    } else if(settings.d_mode == DRAW_MODE_SECONDS){
         if(TimeSeconds() != drawClockLastSeconds){
             Serial.println(TimeSeconds()); //TODO Debug
             DrawUpdateSeconds(TimeSeconds());
         }
-    }
-
-    if(drawMode == DRAW_MODE_TEMP){
+    } else if(settings.d_mode == DRAW_MODE_TEMP){
         if(21 != drawLastTemp){            
             DrawUpdateTemp(21);
         }
+    } else {
+        //drawmode not valid set default:
+        settings.d_mode = DRAW_MODE_CLOCK;
     }
 }
 
@@ -57,7 +48,7 @@ void DrawUpdate(){
 void DrawUpdateClock(uint8 hour,uint8 minutes){
     drawClockLastHour  = hour;
     drawClockLastMinutes= minutes;
-    uint8 onMode = !drawClockFadeMode;
+    uint8 onMode = !settings.d_clk_fade;
     
     //### 12H Mod
     if(hour>12) hour = hour - 12;
@@ -67,9 +58,9 @@ void DrawUpdateClock(uint8 hour,uint8 minutes){
     LedClear(onMode);
 
     //### Startdraw
-    if( (drawClockItIsMode == DRAW_CLOCK_ITIS_PERMA) || 
-        (drawClockItIsMode == DRAW_CLOCK_ITIS_HOURNHALF && minutes >= 0 && minutes < 5) ||
-        (drawClockItIsMode == DRAW_CLOCK_ITIS_HOURNHALF && minutes >= 30 && minutes < 35) ){
+    if( (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_PERMA) || 
+        (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_HOURNHALF && minutes >= 0 && minutes < 5) ||
+        (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_HOURNHALF && minutes >= 30 && minutes < 35) ){
         LedSetEsIst(onMode);
     }
 
@@ -83,11 +74,11 @@ void DrawUpdateClock(uint8 hour,uint8 minutes){
         LedSetNach(onMode);
     }else if(minutes < 20){        
         LedSetViertelMin(onMode);        
-        if(drawClockRegion != DRAW_CLOCK_REGION_OST){
+        if(settings.d_clk_region != DRAW_CLOCK_REGION_OST){
             LedSetNach(onMode);
         }
     }else if(minutes < 25){
-        if(drawClockRegion == DRAW_CLOCK_REGION_POTT){
+        if(settings.d_clk_region == DRAW_CLOCK_REGION_POTT){
             LedSetZwanzigMin(onMode);
             LedSetNach(onMode);
         }else{
@@ -106,7 +97,7 @@ void DrawUpdateClock(uint8 hour,uint8 minutes){
         LedSetNach(onMode);
         LedSetHalbMin(onMode);
     }else if(minutes < 45){
-        if(drawClockRegion == DRAW_CLOCK_REGION_POTT){
+        if(settings.d_clk_region == DRAW_CLOCK_REGION_POTT){
             LedSetZwanzigMin(onMode);
             LedSetVor(onMode);
         }else{
@@ -115,7 +106,7 @@ void DrawUpdateClock(uint8 hour,uint8 minutes){
             LedSetHalbMin(onMode);
         }
     }else if(minutes < 50){           
-        if(drawClockRegion == DRAW_CLOCK_REGION_OST){
+        if(settings.d_clk_region == DRAW_CLOCK_REGION_OST){
             LedSetDreiviertelMin(onMode);
         }else{
             LedSetViertelMin(onMode);     
@@ -136,9 +127,9 @@ void DrawUpdateClock(uint8 hour,uint8 minutes){
 
     //Stunden Shift je nach Regionslayout
     if(
-        (drawClockRegion == DRAW_CLOCK_REGION_POTT && minutes >= 25)||
-        (drawClockRegion == DRAW_CLOCK_REGION_WEST && minutes >= 20)||
-        (drawClockRegion == DRAW_CLOCK_REGION_OST  && minutes >= 15)
+        (settings.d_clk_region == DRAW_CLOCK_REGION_POTT && minutes >= 25)||
+        (settings.d_clk_region == DRAW_CLOCK_REGION_WEST && minutes >= 20)||
+        (settings.d_clk_region == DRAW_CLOCK_REGION_OST  && minutes >= 15)
       ){
         hour++;
         if(hour > 12){
