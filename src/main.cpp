@@ -14,6 +14,7 @@
 #include "draw.h"
 #include "ldr.h"
 #include "settings.h"
+#include "website.h"
 
 //##############################
 //## Instances
@@ -39,21 +40,6 @@ void log(String msg){
 void saveConfigCallback () {
   log_debug("Saved -> do Reset");
   ESP.reset();
-}
-
-void handleWebserverRequests(){  
-    String page = FPSTR(HTTP_HEAD);
-    page.replace("{v}", "MeineInfo");
-    page += FPSTR(HTTP_SCRIPT);  
-    page += FPSTR(HTTP_STYLE);    
-    page += FPSTR(HTTP_HEAD_END);
-    page += String(F("<h1>"));
-    page += F("Ich werd mal ne Wordclock Oberfläche");
-    page += String(F("</h1>"));
-    page += FPSTR(HTTP_END);
-
-    server.sendHeader("Content-Length", String(page.length()));
-    server.send(200, "text/html", page);    
 }
 
 //##############################
@@ -88,7 +74,7 @@ void setup() {
 
   //### Starte Webserver
   log("Start Webserver");
-  server.on("/", handleWebserverRequests);
+  WebsiteInit(&server);  
   server.begin();
 
   //### Starte UpdateServer 
