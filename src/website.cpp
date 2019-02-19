@@ -8,10 +8,12 @@ void WebsiteInit(ESP8266WebServer *server){
     _server->on(REQ_CONFIG, WebsiteConfigPage);    
     _server->on(REQ_CONF_NETWORK, WebsiteNetworkConfigPage);    
     _server->on(REQ_CONF_MQTT, WebsiteMQTTConfigPage);    
+    _server->on(REQ_CONF_LDR, WebsiteLDRConfigPage);  
     _server->on(REQ_CONF_MISC, WebsiteMiscConfigPage);    
     _server->on(REQ_MODES, WebsiteModesPage);    
     _server->on(REQ_CONF_COLOR, WebsiteColorConfPage);  
     _server->on(REQ_CONF_DRAW, WebsiteDrawConfPage);
+      
 }
 
 void WebsideApplyArgs(){
@@ -363,6 +365,12 @@ void WebsiteConfigPage(){
         page.replace("{dest}", REQ_CONF_MQTT);
     }
 
+    if(settings.u_LDR > 0){
+        page += FPSTR(SITE_HREF);  
+        page.replace("{tit}", F("LDR Config"));
+        page.replace("{dest}", REQ_CONF_LDR);
+    }
+
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Misc. Config"));
     page.replace("{dest}", REQ_CONF_MISC);
@@ -501,6 +509,57 @@ void WebsiteMQTTConfigPage(){
     page.replace("{tit}", F("Save & Restart"));
     page.replace("{id}",  F("ACTION"));
     page.replace("{val}", F("SAVER"));
+    page.replace("{col}", F("bred"));
+
+    page += FPSTR(SITE_FORM_END); 
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Back"));
+    page.replace("{dest}", REQ_CONFIG);
+
+    page += FPSTR(SITE_END); 
+     
+    WebsiteSend(page); 
+}
+
+void WebsiteLDRConfigPage(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN);  
+    page.replace("{pcat}" , F("LDR Config"));
+    
+    page += FPSTR(SITE_FORM_BGN);  
+    page.replace("{dest}", REQ_CONF_LDR);
+
+    page += FPSTR(SITE_INP_NR);  
+    page.replace("{tit}", F("min. PWM Level"));
+    page.replace("{id}",  F(L_MIN_BRIGHT_TAG)); 
+    page.replace("{val}", String(settings.l_min_bright));
+    page.replace("{min}", F("1"));
+    page.replace("{max}", F("32"));
+    page.replace("{step}", F("1"));
+
+    for(uint8 i=0; i < sizeof(settings.l_treshold) / 2 ; i++){   //geteilt durch 2 wegen uint16
+        page += FPSTR(SITE_INP_N);  
+        page.replace("{tit}", "LDR Treshold" + String(i+1)); 
+        page.replace("{id}",  L_TRESHOLD_TAG + String(i)); 
+        page.replace("{val}", String(settings.l_treshold[i]));        
+    }
+    page.replace("{min}", F("1"));
+    page.replace("{max}", F("1024"));
+    page.replace("{step}", F("1"));
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Apply"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("APPLY"));
+    page.replace("{col}", F("bgrn"));
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Save & Apply"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("SAVE"));
     page.replace("{col}", F("bred"));
 
     page += FPSTR(SITE_FORM_END); 

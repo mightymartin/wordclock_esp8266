@@ -1,7 +1,7 @@
 #include "ldr.h"
 #include "settings.h"
 
-static Ticker LDRTimer(LDRUpdate, 1000); 
+static Ticker LDRTimer(LDRUpdate, 10000); 
 
 static uint16 measureBuffer[LDR_MEASURE_COUNT];
 static uint8 currentVal = MAX_FADE_STEPS-1;
@@ -34,14 +34,15 @@ void LDRUpdate(){
     //###################
     //## Berechnen
     //###################
-    uint8 thCount = 8;
-    uint8 thStep = MAX_FADE_STEPS / thCount;    
+    uint8 minStep = settings.l_min_bright;
+    uint8 thCount = sizeof(settings.l_treshold) / 2; //geteilt durch 2 wegen uint16
+    uint8 thStep = round((MAX_FADE_STEPS-minStep) / thCount);    
     targetVal = thStep-1;    
 
     if(settings.u_LDR){        
         for(uint8 i=0; i < thCount; i++){
-            if(LDRgetValue() >= settings.c_ldrTreshhold[i]){                
-                targetVal = (thStep*(i+1))-1;                
+            if(LDRgetValue() >= settings.l_treshold[i]){                 
+                targetVal = minStep + (thStep*(i+1)) - 1;                
             }   
             if(targetVal > MAX_FADE_STEPS-1){
                 targetVal = MAX_FADE_STEPS-1;
@@ -65,8 +66,8 @@ void LDRUpdate(){
     //###################
     //## Debug
     //###################
-    Serial.println(LDRgetValue());   
-    Serial.println(LDRgetBrightness());       
+    //Serial.println(LDRgetValue());   
+    //Serial.println(LDRgetBrightness());       
 }
 
 uint16 LDRgetValue(){

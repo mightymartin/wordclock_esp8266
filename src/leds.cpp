@@ -4,6 +4,8 @@ static Ticker LedTimer(LedUpdate, LED_MAX_FADE_DURATION/MAX_FADE_STEPS);
 static NeoPixelBus<LED_PIXEL_TYP, LED_PIXEL_METHOD> neoPixelStrip(LED_COUNT, LED_PIXEL_PIN);
 
 static uint8    uiDirty = 0;
+static uint8    uiLastBrightness = 0;
+static uint8    uiLastLDRValue = 0;
 
 static LedObject ledObjects[LED_COUNT];
 
@@ -22,14 +24,17 @@ void LedTick(){
 
 void LedUpdate(){
     if(LedIsDirty()){
+        uiLastBrightness = settings.c_brightness;
+        uiLastLDRValue = LDRgetBrightness();
+
         for(uint8 ledNum = 0; ledNum < LED_COUNT; ledNum++){
-            uint16_t generalBrightness  = (uint16_t)pwm_table[settings.c_brightness];
+            uint16_t generalBrightness  = (uint16_t)pwm_table[settings.c_brightness];            
             uint16 red = (generalBrightness * ledObjects[ledNum].r) / 255;
             uint16 green = (generalBrightness * ledObjects[ledNum].g) / 255;
             uint16 blue = (generalBrightness * ledObjects[ledNum].b) / 255;
 
             if(settings.u_LDR){
-                uint16_t ldrBrightness  = (uint16_t)pwm_table[LDRgetBrightness()];
+                uint16_t ldrBrightness  = (uint16_t)pwm_table[LDRgetBrightness()];            
                 red = (ldrBrightness * red) / 255;
                 green = (ldrBrightness * green) / 255;
                 blue = (ldrBrightness * blue) / 255;
@@ -182,18 +187,27 @@ uint8 LedIsDirty(){
     if(uiDirty){
         return uiDirty;
     }else{
+        if(uiLastBrightness != settings.c_brightness){
+            return 1;
+        };
+                
+        if(settings.u_LDR){ 
+            if(uiLastLDRValue != LDRgetBrightness()){
+                return 1;
+            }
+        }
+        
+        
         uint8 loopDirty = 0;
         for(uint8 ledNum = 0; ledNum < LED_COUNT; ledNum++){
             if(loopDirty == 1){
                 continue;
             }
-
             if(ledObjects[ledNum].status == LED_STATIS_FADEIN || ledObjects[ledNum].status == LED_STATIS_FADEOUT) {
                 loopDirty = 1;
             } 
         }
         return loopDirty;
-    }
-    //TODO general brigthness && ldr change
+    }    
 }
 

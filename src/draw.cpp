@@ -23,13 +23,13 @@ void DrawTick(){
 void DrawUpdate(){
     if(settings.d_mode == DRAW_MODE_CLOCK){
         if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes){   
-            Serial.println(TimeHours()); //TODO Debug
-            Serial.println(TimeMinutes()); //TODO Debug         
+            //Serial.println(TimeHours()); //TODO Debug
+            //Serial.println(TimeMinutes()); //TODO Debug         
             DrawUpdateClock(TimeHours(), TimeMinutes());
         }
     } else if(settings.d_mode == DRAW_MODE_SECONDS){
         if(TimeSeconds() != drawClockLastSeconds){
-            Serial.println(TimeSeconds()); //TODO Debug
+            //Serial.println(TimeSeconds()); //TODO Debug
             DrawUpdateSeconds(TimeSeconds());
         }
     } else if(settings.d_mode == DRAW_MODE_TEMP){
@@ -193,9 +193,7 @@ void DrawUpdateSeconds(uint8 seconds){
     LedClear(1);
 
     drawFontAt(char1+48,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_CENTER,1);
-    drawFontAt(char2+48,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1);     
-    
-    //TODO fade?      
+    drawFontAt(char2+48,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1);        
 } 
 
 void DrawUpdateTemp(uint8 temperature){
@@ -209,6 +207,4 @@ void DrawUpdateTemp(uint8 temperature){
 
     //celsius Punkt
     LedSetMinDot(0,1);
-
-    //TODO fade?
 }

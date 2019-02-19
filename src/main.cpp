@@ -94,14 +94,3 @@ void loop() {
   server.handleClient();
   updateServer.handleClient();  
 }
-
-
-
-/*
-TODO
-json datastore / eeprom?
-mqtt
-functions
-
-
-*/

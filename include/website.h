@@ -9,7 +9,7 @@
 #define QUOTE(...) #__VA_ARGS__
 
 #define REQ_START           "/"
-#define REQ_MODES           "/dra"
+#define REQ_MODES           "/mod"
 #define REQ_CONFIG          "/cnf"
 
 #define REQ_CONF_DRAW       "/cdr"
@@ -18,6 +18,7 @@
 #define REQ_CONF_NETWORK    "/cne"
 #define REQ_CONF_MQTT       "/cmq"
 #define REQ_CONF_MISC       "/cmi"
+#define REQ_CONF_LDR        "/cld"
 
 const char SITE_HEAD[]          PROGMEM = QUOTE(    <html>
                                                         <head>
@@ -113,15 +114,15 @@ const char SITE_END[]           PROGMEM    = QUOTE(             </fieldset>
 const char SITE_FORM_BGN[]      PROGMEM    = QUOTE( <form method="post" action="{dest}">);
 const char SITE_FORM_END[]      PROGMEM    = QUOTE( </form>);
 
-const char SITE_INP_T[]         PROGMEM    = QUOTE( <b>{tit}</b> ({val})<br/>
+const char SITE_INP_T[]         PROGMEM    = QUOTE( <b>{tit}</b> [l:{len}] ({val})<br/>
 					                                <input id="{id}" name="{id}" maxlength="{len}" value="{val}"><br/>
 					                                <br/>);
 
-const char SITE_INP_N[]         PROGMEM    = QUOTE( <b>{tit}</b> ({val})<br/>
+const char SITE_INP_N[]         PROGMEM    = QUOTE( <b>{tit}</b> [{min}-{max}] ({val})<br/>
 					                                <input type="number" id="{id}" name="{id}" min="{min}" max="{max}" step="{step}" value="{val}"><br/>
 					                                <br/>);
 
-const char SITE_INP_NR[]        PROGMEM    = QUOTE( <b>{tit}</b> ({val})<br/>
+const char SITE_INP_NR[]        PROGMEM    = QUOTE( <b>{tit}</b> [{min}-{max}] ({val})<br/>
 					                                <input type="range" id="{id}" name="{id}" min="{min}" max="{max}" step="{step}" value="{val}"><br/>
 					                                <br/>);
 
@@ -152,7 +153,9 @@ extern void WebsiteColorConfPage();
 extern void WebsiteConfigPage();
 extern void WebsiteNetworkConfigPage();
 extern void WebsiteMQTTConfigPage();
+extern void WebsiteLDRConfigPage();
 extern void WebsiteMiscConfigPage();
+
 
 extern void WebsiteRebootPage();
 extern void WebsiteResetPage();

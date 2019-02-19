@@ -44,8 +44,10 @@
 #define C_PLAIN_RED_TAG             "CRED"
 #define C_PLAIN_GREEN_TAG           "CGREE"
 #define C_PLAIN_BLUE_TAG            "CBLUE"
-#define C_BRIGHTNESs_TAG            "CBRIG"
-#define C_LDR_TRESHHOLD_TAG         "LDRT"
+#define C_BRIGHTNESS_TAG            "CBRIG"
+
+#define L_MIN_BRIGHT_TAG            "LDMI"
+#define L_TRESHOLD_TAG              "LDTR"
 
 #define D_MODE_TAG                  "DMODE"
 #define D_CLK_REGION_TAG            "DREGI"
@@ -86,8 +88,10 @@ struct Settings_t{
     uint8       c_plain_blue            = 0;
     
     uint8       c_brightness            = MAX_FADE_STEPS-1;     
-    uint16      c_ldrTreshhold[8]       = {200,300,400,500,600,700,800,900};
-
+    
+    uint8       l_min_bright            = 4;     
+    uint16      l_treshold[10]         = {100,300,400,500,600,700,750,800,850,900};
+    
     //Draw
     uint8       d_mode                   = 0;
     uint8       d_clk_region             = 2;
