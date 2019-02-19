@@ -9,9 +9,11 @@
 #define QUOTE(...) #__VA_ARGS__
 
 #define REQ_START           "/"
-#define REQ_DRAW            "/cdr"
-#define REQ_COLOR           "/cco"
+#define REQ_MODES           "/dra"
 #define REQ_CONFIG          "/cnf"
+
+#define REQ_CONF_DRAW       "/cdr"
+#define REQ_CONF_COLOR      "/cco"
 
 #define REQ_CONF_NETWORK    "/cne"
 #define REQ_CONF_MQTT       "/cmq"
@@ -34,6 +36,9 @@ const char SITE_HEAD[]          PROGMEM = QUOTE(    <html>
                                                                 }
                                                                 select{
                                                                     width:100%;
+                                                                }
+                                                                form{
+                                                                    margin-bottom: 0px;
                                                                 }
                                                                 textarea{
                                                                     resize:none;
@@ -132,17 +137,25 @@ const char SITE_HREF[]          PROGMEM    = QUOTE( <form method="post" action="
                                                         <button name="" type="submit" class="button">{tit}</button>
                                                     </form>);
 
+const char SITE_HREF_EXT[]      PROGMEM    = QUOTE( <form method="post" action="{dest}">
+                                                        <button name="{id}" type="submit" value="{val}" class="button {col}">{tit}</button>
+                                                    </form>);
 
 
 extern void WebsiteInit(ESP8266WebServer *server);
 extern void WebsiteStartPage();
-extern void WebsiteDrawPage();
-extern void WebsiteColorPage();
+
+extern void WebsiteModesPage ();
+extern void WebsiteDrawConfPage ();
+extern void WebsiteColorConfPage();
 
 extern void WebsiteConfigPage();
 extern void WebsiteNetworkConfigPage();
 extern void WebsiteMQTTConfigPage();
 extern void WebsiteMiscConfigPage();
+
+extern void WebsiteRebootPage();
+extern void WebsiteResetPage();
 
 extern void WebsiteActionPage();
 

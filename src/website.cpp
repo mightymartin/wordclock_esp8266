@@ -9,11 +9,43 @@ void WebsiteInit(ESP8266WebServer *server){
     _server->on(REQ_CONF_NETWORK, WebsiteNetworkConfigPage);    
     _server->on(REQ_CONF_MQTT, WebsiteMQTTConfigPage);    
     _server->on(REQ_CONF_MISC, WebsiteMiscConfigPage);    
-    _server->on(REQ_COLOR, WebsiteColorPage);    
-    _server->on(REQ_DRAW, WebsiteDrawPage);    
+    _server->on(REQ_MODES, WebsiteModesPage);    
+    _server->on(REQ_CONF_COLOR, WebsiteColorConfPage);  
+    _server->on(REQ_CONF_DRAW, WebsiteDrawConfPage);
+}
+
+void WebsideApplyArgs(){
+    for (int i = 0; i < _server->args(); i++) {
+        SettingsSetValue(_server->argName(i),_server->arg(i));
+    }
 }
 
 void WebsiteAction(){
+    if (_server->hasArg("ACTION") == true){
+        String message = "";
+        uint8 doReboot = 0;
+        if(_server->arg("ACTION").equalsIgnoreCase("SAVE")){
+            WebsideApplyArgs();
+            SettingsWrite();
+        } else if(_server->arg("ACTION").equalsIgnoreCase("SAVER")){
+            WebsideApplyArgs();
+            SettingsWrite();
+            doReboot = 1;
+        } else if(_server->arg("ACTION").equalsIgnoreCase("APPLY")){
+            WebsideApplyArgs();
+        } else if(_server->arg("ACTION").equalsIgnoreCase("REBOOT")){
+            doReboot = 1;
+        } else if(_server->arg("ACTION").equalsIgnoreCase("RESET")){
+            SettingsFactoryReset();
+            SettingsWrite();
+            doReboot = 1;
+        }
+
+        if(doReboot > 0 ){
+            //TODO metarefresh tag senden 10 sekunden
+            ESP.reset();
+        }
+    }
     /*if (_server->hasArg("plain")== false){ //Check if body received
         _server->send(200, "text/plain", "Body not received");
         return;
@@ -27,17 +59,23 @@ void WebsiteAction(){
 }
 
 void WebsiteStartPage(){
+    WebsiteAction();
+
     String page = FPSTR(SITE_HEAD);    
     page += FPSTR(SITE_BGN);  
     page.replace("{pcat}" , F("Home"));
 
     page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Color mode"));
-    page.replace("{dest}", REQ_COLOR);
+    page.replace("{tit}", F("Modes"));
+    page.replace("{dest}", REQ_MODES);
 
     page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Display mode"));
-    page.replace("{dest}", REQ_DRAW);
+    page.replace("{tit}", F("Color Settings"));
+    page.replace("{dest}", REQ_CONF_COLOR);
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Display Settings"));
+    page.replace("{dest}", REQ_CONF_DRAW);
 
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Config"));
@@ -48,18 +86,18 @@ void WebsiteStartPage(){
     WebsiteSend(page);    
 }
 
-void WebsiteDrawPage(){
+void WebsiteModesPage(){
     WebsiteAction();
 
     String page = FPSTR(SITE_HEAD);    
     page += FPSTR(SITE_BGN);  
-    page.replace("{pcat}" , F("Display Settings"));
+    page.replace("{pcat}" , F("Modes"));
     
     page += FPSTR(SITE_FORM_BGN);  
-    page.replace("{dest}", REQ_DRAW);
+    page.replace("{dest}", REQ_MODES);
 
     page += FPSTR(SITE_INP_CBX_BGN);  
-    page.replace("{tit}", F("Display mode"));
+    page.replace("{tit}", F("Mode"));
     page.replace("{id}",  F(D_MODE_TAG)); 
     page.replace("{val}",  String(settings.d_mode));     
     page += FPSTR(SITE_INP_CBX_OPT);  
@@ -70,11 +108,80 @@ void WebsiteDrawPage(){
     page.replace("{otit}", F("Seconds"));
     page.replace("{oval}", String(DRAW_MODE_SECONDS));
     page.replace("{osel}", (settings.d_mode == DRAW_MODE_SECONDS) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("Temperature"));
-    page.replace("{oval}", String(DRAW_MODE_TEMP));
-    page.replace("{osel}", (settings.d_mode == DRAW_MODE_TEMP) ? F("selected") : F(""));    
+    if(settings.u_TEMP == 1){
+        page += FPSTR(SITE_INP_CBX_OPT);  
+        page.replace("{otit}", F("Temperature"));
+        page.replace("{oval}", String(DRAW_MODE_TEMP));
+        page.replace("{osel}", (settings.d_mode == DRAW_MODE_TEMP) ? F("selected") : F(""));    
+    }
     page += FPSTR(SITE_INP_CBX_END); 
+
+    page += FPSTR(SITE_INP_CBX_BGN);  
+    page.replace("{tit}", F("Colormode"));
+    page.replace("{id}",  F(C_MODE_TAG)); 
+    page.replace("{val}",  String(settings.c_mode));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Plain"));
+    page.replace("{oval}", String(COLOR_MODE_PLAIN));
+    page.replace("{osel}", (settings.c_mode == COLOR_MODE_PLAIN) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Rainbow Serpentine"));
+    page.replace("{oval}", String(COLOR_MODE_RAINBOW_SERPENTINE));
+    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_SERPENTINE) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Rainbow N->S"));
+    page.replace("{oval}", String(COLOR_MODE_RAINBOW_VERTI));
+    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_VERTI) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Rainbow S->N"));
+    page.replace("{oval}", String(COLOR_MODE_RAINBOW_VERTI_I));
+    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_VERTI_I) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Rainbow E->W"));
+    page.replace("{oval}", String(COLOR_MODE_RAINBOW_HORI));
+    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_HORI) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Rainbow W->E"));
+    page.replace("{oval}", String(COLOR_MODE_RAINBOW_HORI_I));
+    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_HORI_I) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Color Change"));
+    page.replace("{oval}", String(COLOR_MODE_COLOR_CHANGE));
+    page.replace("{osel}", (settings.c_mode == COLOR_MODE_COLOR_CHANGE) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_END);
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Apply"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("APPLY"));
+    page.replace("{col}", F("bgrn"));
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Save & Apply"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("SAVE"));
+    page.replace("{col}", F("bred"));
+
+    page += FPSTR(SITE_FORM_END); 
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Back"));
+    page.replace("{dest}", REQ_START);
+
+    page += FPSTR(SITE_END); 
+     
+    WebsiteSend(page); 
+}
+
+void WebsiteDrawConfPage(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN);  
+    page.replace("{pcat}" , F("Display Settings"));
+    
+    page += FPSTR(SITE_FORM_BGN);  
+    page.replace("{dest}", REQ_CONF_DRAW);
 
     if(settings.d_mode == DRAW_MODE_CLOCK){
         page += FPSTR(SITE_INP_CBX_BGN);  
@@ -126,6 +233,8 @@ void WebsiteDrawPage(){
         page.replace("{oval}", F("0"));
         page.replace("{osel}", (settings.d_clk_fade == 0) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_END); 
+    }else{
+        page += "<b>nothing to do</b>";
     }
 
     page += FPSTR(SITE_BUTTON);  
@@ -151,7 +260,7 @@ void WebsiteDrawPage(){
     WebsiteSend(page); 
 }
 
-void WebsiteColorPage(){
+void WebsiteColorConfPage(){
     WebsiteAction();
 
     String page = FPSTR(SITE_HEAD);    
@@ -159,41 +268,7 @@ void WebsiteColorPage(){
     page.replace("{pcat}" , F("Color Settings"));
     
     page += FPSTR(SITE_FORM_BGN);  
-    page.replace("{dest}", REQ_COLOR);
-
-    page += FPSTR(SITE_INP_CBX_BGN);  
-    page.replace("{tit}", F("Colormode"));
-    page.replace("{id}",  F(C_MODE_TAG)); 
-    page.replace("{val}",  String(settings.c_mode));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("Plain"));
-    page.replace("{oval}", String(COLOR_MODE_PLAIN));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_PLAIN) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("Rainbow Serpentine"));
-    page.replace("{oval}", String(COLOR_MODE_RAINBOW_SERPENTINE));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_SERPENTINE) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("Rainbow N->S"));
-    page.replace("{oval}", String(COLOR_MODE_RAINBOW_VERTI));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_VERTI) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("Rainbow S->N"));
-    page.replace("{oval}", String(COLOR_MODE_RAINBOW_VERTI_I));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_VERTI_I) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("Rainbow E->W"));
-    page.replace("{oval}", String(COLOR_MODE_RAINBOW_HORI));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_HORI) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("Rainbow W->E"));
-    page.replace("{oval}", String(COLOR_MODE_RAINBOW_HORI_I));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_HORI_I) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("Color Change"));
-    page.replace("{oval}", String(COLOR_MODE_COLOR_CHANGE));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_COLOR_CHANGE) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_END);  
+    page.replace("{dest}", REQ_CONF_COLOR);
 
     if( settings.c_mode != COLOR_MODE_COLOR_CHANGE && settings.c_mode != COLOR_MODE_PLAIN ){
         page += FPSTR(SITE_INP_CBX_BGN);  
@@ -272,6 +347,8 @@ void WebsiteColorPage(){
 
 
 void WebsiteConfigPage(){
+    WebsiteAction();
+
     String page = FPSTR(SITE_HEAD);    
     page += FPSTR(SITE_BGN);   
     page.replace("{pcat}" , F("Config"));
@@ -289,6 +366,13 @@ void WebsiteConfigPage(){
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Misc. Config"));
     page.replace("{dest}", REQ_CONF_MISC);
+
+    page += FPSTR(SITE_HREF_EXT);  
+    page.replace("{tit}", F("Restart"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("REBOOT"));
+    page.replace("{col}", F("bred"));
+    page.replace("{dest}", REQ_START);
 
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Home"));
@@ -318,7 +402,7 @@ void WebsiteNetworkConfigPage(){
     page += FPSTR(SITE_INP_T);  
     page.replace("{tit}", F("AP SSID Prefix"));
     page.replace("{id}",  F(N_AP_SSID_TAG)); 
-    page.replace("{val}", String(settings.n_ap_ssid) + String(ESP.getChipId()));
+    page.replace("{val}", String(settings.n_ap_ssid));
     page.replace("{len}", F("32"));
 
     page += FPSTR(SITE_INP_T);  
@@ -326,22 +410,21 @@ void WebsiteNetworkConfigPage(){
     page.replace("{id}",  F(N_AP_PASS_TAG)); 
     page.replace("{val}", String(settings.n_ap_pass));
     page.replace("{len}", F("32"));
-
-    if(settings.u_NTP > 0){
-        page += FPSTR(SITE_INP_N);  
-        page.replace("{tit}", F("NTP Interval"));
-        page.replace("{id}",  F(N_NTPINTERVAL_TAG)); 
-        page.replace("{val}", String(settings.n_ntpinterval));
-        page.replace("{min}", F("10000"));
-        page.replace("{max}", F("60000"));
-        page.replace("{step}", F("1000"));
-        
-        page += FPSTR(SITE_INP_T);  
-        page.replace("{tit}", F("NTP Server"));
-        page.replace("{id}",  F(N_NTPSERVER_TAG)); 
-        page.replace("{val}", String(settings.n_ntpserver));
-        page.replace("{len}", F("32"));
-    }
+    
+    page += FPSTR(SITE_INP_N);  
+    page.replace("{tit}", F("NTP Interval"));
+    page.replace("{id}",  F(N_NTPINTERVAL_TAG)); 
+    page.replace("{val}", String(settings.n_ntpinterval));
+    page.replace("{min}", F("10000"));
+    page.replace("{max}", F("60000"));
+    page.replace("{step}", F("1000"));
+    
+    page += FPSTR(SITE_INP_T);  
+    page.replace("{tit}", F("NTP Server"));
+    page.replace("{id}",  F(N_NTPSERVER_TAG)); 
+    page.replace("{val}", String(settings.n_ntpserver));
+    page.replace("{len}", F("32"));
+    
 
     page += FPSTR(SITE_BUTTON);  
     page.replace("{tit}", F("Save & Restart"));
@@ -443,6 +526,7 @@ void WebsiteMiscConfigPage(){
 
     page += FPSTR(SITE_INP_CBX_BGN);  
     page.replace("{tit}", F("use MQTT"));
+    page.replace("{val}", String(settings.u_MQTT));
     page.replace("{id}",  F(U_MQTT_TAG)); 
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("yes"));
@@ -453,22 +537,10 @@ void WebsiteMiscConfigPage(){
     page.replace("{oval}", F("0"));
     page.replace("{osel}", (settings.u_MQTT == 0) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_END);  
-
-    page += FPSTR(SITE_INP_CBX_BGN);  
-    page.replace("{tit}", F("use NTP"));
-    page.replace("{id}",  F(U_NTP_TAG)); 
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("yes"));
-    page.replace("{oval}", F("1"));
-    page.replace("{osel}", (settings.u_NTP == 1) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("no"));
-    page.replace("{oval}", F("0"));
-    page.replace("{osel}", (settings.u_NTP == 0) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_END);  
     
     page += FPSTR(SITE_INP_CBX_BGN);  
     page.replace("{tit}", F("use LDR"));
+    page.replace("{val}", String(settings.u_LDR));
     page.replace("{id}",  F(U_LDR_TAG)); 
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("yes"));
@@ -478,6 +550,20 @@ void WebsiteMiscConfigPage(){
     page.replace("{otit}", F("no"));
     page.replace("{oval}", F("0"));
     page.replace("{osel}", (settings.u_LDR == 0) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_END);  
+
+    page += FPSTR(SITE_INP_CBX_BGN);  
+    page.replace("{tit}", F("use TEMPERATURE"));
+    page.replace("{val}", String(settings.u_TEMP));
+    page.replace("{id}",  F(U_TEMP_TAG)); 
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("yes"));
+    page.replace("{oval}", F("1"));
+    page.replace("{osel}", (settings.u_TEMP == 1) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("no"));
+    page.replace("{oval}", F("0"));
+    page.replace("{osel}", (settings.u_TEMP == 0) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_END);  
 
     page += FPSTR(SITE_BUTTON);  

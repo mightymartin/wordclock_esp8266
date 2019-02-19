@@ -1,9 +1,10 @@
-#ifndef DISPLAY_H_
-#define DISPLAY_H_
+#ifndef LEDS_H_
+#define LEDS_H_
 
 #include <NeoPixelBus.h>
 #include <Ticker.h>
 #include "ldr.h"
+#include "settings.h"
 
 #define LED_PIXEL_PIN       2
 #define LED_PIXEL_TYP       NeoGrbFeature //(NeoBrgFeature,NeoRgbFeature,NeoRbgFeature,NeoGrbFeature)
@@ -15,9 +16,8 @@
 #define LED_STATIS_FADEOUT  3
 #define LED_STATIS_UNKNOWN  4
 
-#define LED_MAX_FADE_STEPS	     32
 #define LED_MAX_FADE_DURATION    2000
-#define LED_MAX_BRIGHTNESS_STEPS LED_MAX_FADE_STEPS
+#define LED_MAX_BRIGHTNESS_STEPS MAX_FADE_STEPS
 
 #define LED_MATRIX_ROWS	10
 #define LED_MATRIX_COLS	11

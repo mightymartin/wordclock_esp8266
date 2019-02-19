@@ -2,6 +2,7 @@
 #define LDR_H_
 
 #include <Ticker.h>
+#include "leds.h"
 
 #define LDR_MEASURE_COUNT  5
 #define LDR_MEASURE_PIN    A0

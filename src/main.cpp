@@ -3,11 +3,6 @@
 #include <ESP8266HTTPUpdateServer.h>
 #include <WiFiManager.h>
 
-
-//#include <DNSServer.h>
-//#include <ArduinoJson.h> 
-
-#include "main.h"
 #include "leds.h"
 #include "color.h"
 #include "timeNTP.h"
@@ -69,7 +64,7 @@ void setup() {
   #ifndef CONF_DEBUG
     wifiManager.setDebugOutput(false);
   #endif  
-  String ssid = CONF_SSID_PREFIX + String(ESP.getChipId());
+  String ssid = settings.n_ap_ssid + String(ESP.getChipId());
   wifiManager.autoConnect(ssid.c_str(), NULL);
 
   //### Starte Webserver
@@ -83,10 +78,6 @@ void setup() {
   updateServer.begin();
 
   log("--- Init End ---");
-
-  Serial.println(SettingsGetChecksum()); 
-  settings.c_mode = 2;
-  Serial.println(SettingsGetChecksum()); 
 }
 
 //##############################
@@ -108,7 +99,6 @@ void loop() {
 
 /*
 TODO
-Wifif REset on flash (wifi discconect)
 json datastore / eeprom?
 mqtt
 functions

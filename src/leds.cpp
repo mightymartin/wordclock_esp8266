@@ -1,23 +1,11 @@
 #include "leds.h"
 
-static Ticker LedTimer(LedUpdate, LED_MAX_FADE_DURATION/LED_MAX_FADE_STEPS);
+static Ticker LedTimer(LedUpdate, LED_MAX_FADE_DURATION/MAX_FADE_STEPS);
 static NeoPixelBus<LED_PIXEL_TYP, LED_PIXEL_METHOD> neoPixelStrip(LED_COUNT, LED_PIXEL_PIN);
 
 static uint8    uiDirty = 0;
-static uint16   brightnessStep = LED_MAX_BRIGHTNESS_STEPS-1;
 
 static LedObject ledObjects[LED_COUNT];
-
-#if (LED_MAX_FADE_STEPS==32)
-    uint8_t pwm_table[LED_MAX_FADE_STEPS] = {
-                                                        0,   1,   3,   4,   5,   6,   7,   8,
-                                                        9,  10,  12,  14,  16,  18,  21,  24,
-                                                        28,  32,  37,  42,  48,  55,  63,  72,
-                                                        83,  96, 111, 129, 153, 182, 216, 255
-                                                    };
-#else
-    #error unknown pwm step size
-#endif
 
 void LedInit(){    
     LedClear(1); 
@@ -35,15 +23,17 @@ void LedTick(){
 void LedUpdate(){
     if(LedIsDirty()){
         for(uint8 ledNum = 0; ledNum < LED_COUNT; ledNum++){
-            uint16_t generalBrightness  = (uint16_t)pwm_table[brightnessStep];
+            uint16_t generalBrightness  = (uint16_t)pwm_table[settings.c_brightness];
             uint16 red = (generalBrightness * ledObjects[ledNum].r) / 255;
             uint16 green = (generalBrightness * ledObjects[ledNum].g) / 255;
             uint16 blue = (generalBrightness * ledObjects[ledNum].b) / 255;
 
-            // uint16_t ldrBrightness  = (uint16_t)pwm_table[LED_MAX_BRIGHTNESS_STEPS-1]; //TODO getLDRValue z.b.
-            // red = (ldrBrightness * red) / 255;
-            // green = (ldrBrightness * green) / 255;
-            // blue = (ldrBrightness * blue) / 255;
+            if(settings.u_LDR){
+                uint16_t ldrBrightness  = (uint16_t)pwm_table[LDRgetBrightness()];
+                red = (ldrBrightness * red) / 255;
+                green = (ldrBrightness * green) / 255;
+                blue = (ldrBrightness * blue) / 255;
+            }
     
             if(ledObjects[ledNum].status == LED_STATIS_ON){
                 //LED ist AN
@@ -59,7 +49,7 @@ void LedUpdate(){
                 green = (fadeBrightness * green) / 255;
                 blue = (fadeBrightness * blue) / 255;
 
-                if(ledObjects[ledNum].fadeState < LED_MAX_FADE_STEPS-1){
+                if(ledObjects[ledNum].fadeState < MAX_FADE_STEPS-1){
                     ledObjects[ledNum].fadeState++;
                 }else{
                     ledObjects[ledNum].status = LED_STATIS_ON;
@@ -137,7 +127,7 @@ void LedSetStatus(uint8 ledNum, uint8 status){
             ledObjects[ledNum].fadeState = 0;
         }
         if(status == LED_STATIS_ON){
-            ledObjects[ledNum].fadeState = LED_MAX_FADE_STEPS-1;
+            ledObjects[ledNum].fadeState = MAX_FADE_STEPS-1;
         }
 
         if(ledObjects[ledNum].status != status){
