@@ -3,7 +3,7 @@ Wordclock based on an ESP8266 / WS2812
 Hardware:
 - LDR with voltagedevider on A0 
 - WS2866 via levelshifter on RXD0 
-- Temp Sensor (to be determined)
+- Temperature Sensor (to be determined)
 
 Features:
 - defineable hardware layout 
@@ -11,18 +11,19 @@ Features:
 - display hour and minutes
 - display seconds
 - display temperature
+- 8 different color modes with HUE rotate
 - wifimanger
 - Webserver http://deviceip:80 (WIP)
 - OTA http://deviceip:81/update
 - NTP time client
+- MQTT PUB / SUB
 - LDR driven brightness
 - different color modes 
 
 
-Todos befor V0:
+Todos befor V0.1:
 - Config layer for persistent data in EEPROM / SPIFF
-- Web GUIi to configure clock an save data
-
+- tempsensor implementation
 - MQTT Sub: ON/OFF && BRIGHTNESS && COLORMODE && DISPLAYMODE (Non persistent)
 - MQTT Pub: current config as JSON to broker
 
