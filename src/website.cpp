@@ -13,6 +13,7 @@ void WebsiteInit(ESP8266WebServer *server){
     _server->on(REQ_MODES, WebsiteModesPage);    
     _server->on(REQ_CONF_COLOR, WebsiteColorConfPage);  
     _server->on(REQ_CONF_DRAW, WebsiteDrawConfPage);
+    _server->on(REQ_INFO, WebsiteInfoPage);
       
 }
 
@@ -29,35 +30,41 @@ void WebsiteAction(){
         if(_server->arg("ACTION").equalsIgnoreCase("SAVE")){
             WebsideApplyArgs();
             SettingsWrite();
+            message = "Settings saved";
         } else if(_server->arg("ACTION").equalsIgnoreCase("SAVER")){
             WebsideApplyArgs();
-            SettingsWrite();
+            SettingsWrite();            
             doReboot = 1;
+            message = "Settings saved -> Reboot";
         } else if(_server->arg("ACTION").equalsIgnoreCase("APPLY")){
             WebsideApplyArgs();
-        } else if(_server->arg("ACTION").equalsIgnoreCase("REBOOT")){
+            message = "Settings applied";
+        } else if(_server->arg("ACTION").equalsIgnoreCase("REBOOT")){            
             doReboot = 1;
+            message = "Reboot";
         } else if(_server->arg("ACTION").equalsIgnoreCase("RESET")){
             SettingsFactoryReset();
-            SettingsWrite();
+            SettingsWrite();            
             doReboot = 1;
+            message = "Settings set to defaults -> Reboot";
         }
 
         if(doReboot > 0 ){
-            //TODO metarefresh tag senden 10 sekunden
+            //Seite muss neu geladen werden. Nach X sekunden wird redirected
+            String page = FPSTR(SITE_HEAD);    
+            page += FPSTR(SITE_BGN); 
+            page.replace("{emeta}" , FPSTR(SITE_RELOAD_WAIT));
+            page.replace("{phead}", message);    
+            page.replace("{ptit}" , "Restart");
+    
+            _server->sendHeader("Content-Length", String(page.length()));
+            _server->send(200, "text/html", page); 
+
+            //TODO Funkt nicht 
+            delay(1000);
             ESP.reset();
         }
     }
-    /*if (_server->hasArg("plain")== false){ //Check if body received
-        _server->send(200, "text/plain", "Body not received");
-        return;
-    }
- 
-    String message = "Body received:\n";
-           message += _server->arg("plain");
-           message += "\n";
- 
-    _server->send(200, "text/plain", message);    */
 }
 
 void WebsiteStartPage(){
@@ -80,8 +87,93 @@ void WebsiteStartPage(){
     page.replace("{dest}", REQ_CONF_DRAW);
 
     page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Infos"));
+    page.replace("{dest}", REQ_INFO);
+
+    page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Config"));
     page.replace("{dest}", REQ_CONFIG);
+
+    page += FPSTR(SITE_END); 
+    
+    WebsiteSend(page);    
+}
+
+void WebsiteInfoPage(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN);  
+    page.replace("{pcat}" , F("Infos"));
+
+    page += FPSTR(SITE_DL_BGN);  
+
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Chip ID"));
+    page.replace("{val}", String(ESP.getChipId()) );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Flash Chip ID"));
+    page.replace("{val}", String(ESP.getFlashChipId()) );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("IDE Flash Size"));
+    page.replace("{val}", String(ESP.getFlashChipSize() / 1024)+F("kB"));
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Real Flash Size"));
+    page.replace("{val}", String(ESP.getFlashChipRealSize() / 1024)+F("kB") );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Program Size"));
+    page.replace("{val}", String(ESP.getSketchSize() / 1024)+F("kB") );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Free Program Space"));
+    page.replace("{val}", String(ESP.getFreeSketchSpace() / 1024)+F("kB") );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Free Memory"));
+    page.replace("{val}", String(ESP.getFreeHeap() / 1024)+F("kB") );
+
+    page += F("<br/>");  
+
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("CPU Freq"));
+    page.replace("{val}", String(ESP.getCpuFreqMHz())+F("Mhz")  );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Restart Reason"));
+    page.replace("{val}", ESP.getResetReason() );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Core"));
+    page.replace("{val}", ESP.getCoreVersion() );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("SDK"));
+    page.replace("{val}", ESP.getSdkVersion() );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Time"));
+    page.replace("{val}", String(TimeformatedTime()) );
+    
+    page += F("<br/>");  
+
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("IP"));
+    page.replace("{val}", WiFi.localIP().toString() );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("MASK"));
+    page.replace("{val}", WiFi.subnetMask().toString() );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("GATEWAY"));
+    page.replace("{val}", WiFi.gatewayIP().toString() );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("DNS"));
+    page.replace("{val}", WiFi.dnsIP().toString() );
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("MAC"));
+    page.replace("{val}", WiFi.macAddress());
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("SSID"));
+    page.replace("{val}", WiFi.SSID());
+    
+    page += FPSTR(SITE_DL_END);  
+    
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Back"));
+    page.replace("{dest}", REQ_START);
 
     page += FPSTR(SITE_END); 
     

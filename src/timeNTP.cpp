@@ -39,3 +39,7 @@ uint8 TimeMonth(){
 uint16 TimeYear(){
     return ntp.year();
 }
+
+char* TimeformatedTime(){
+    return ntp.formattedTime("%d.%m.%Y %T");
+}

@@ -8,11 +8,13 @@
 extern void TimeInit();
 extern void TimeTick();
 
-uint8    TimeSeconds();
-uint8    TimeMinutes();
-uint8    TimeHours();
-uint8    TimeDay();
-uint8    TimeMonth();
-uint16   TimeYear();
+extern uint8    TimeSeconds();
+extern uint8    TimeMinutes();
+extern uint8    TimeHours();
+extern uint8    TimeDay();
+extern uint8    TimeMonth();
+extern uint16   TimeYear();
+
+extern char* TimeformatedTime();
 
 #endif

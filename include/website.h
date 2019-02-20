@@ -3,6 +3,7 @@
 
 #include <ESP8266WebServer.h>
 #include "settings.h"
+#include "timeNTP.h"
 #include "color.h"
 #include "draw.h"
 
@@ -20,10 +21,13 @@
 #define REQ_CONF_MISC       "/cmi"
 #define REQ_CONF_LDR        "/cld"
 
+#define REQ_INFO           "/inf"
+
 const char SITE_HEAD[]          PROGMEM = QUOTE(    <html>
                                                         <head>
                                                             <meta charset="utf-8">
                                                             <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+                                                            {emeta}
                                                             <title>{ptit}</title>
                                                             <style>
                                                                 div,fieldset,input,select{
@@ -114,6 +118,12 @@ const char SITE_END[]           PROGMEM    = QUOTE(             </fieldset>
 const char SITE_FORM_BGN[]      PROGMEM    = QUOTE( <form method="post" action="{dest}">);
 const char SITE_FORM_END[]      PROGMEM    = QUOTE( </form>);
 
+const char SITE_DL_BGN[]        PROGMEM    = QUOTE( <dl>);
+const char SITE_DL_END[]        PROGMEM    = QUOTE( </dl>);
+
+const char SITE_DL_LINE[]       PROGMEM    = QUOTE( <dt><b>{tit}</b>:</dt>
+                                                    <dd>{val}</dd>);
+
 const char SITE_INP_T[]         PROGMEM    = QUOTE( <b>{tit}</b> [l:{len}] ({val})<br/>
 					                                <input id="{id}" name="{id}" maxlength="{len}" value="{val}"><br/>
 					                                <br/>);
@@ -141,6 +151,8 @@ const char SITE_HREF[]          PROGMEM    = QUOTE( <form method="post" action="
 const char SITE_HREF_EXT[]      PROGMEM    = QUOTE( <form method="post" action="{dest}">
                                                         <button name="{id}" type="submit" value="{val}" class="button {col}">{tit}</button>
                                                     </form>);
+const char SITE_RELOAD_WAIT[]      PROGMEM    = QUOTE( <meta http-equiv="refresh" content="6; url={dest}"> );
+
 
 
 extern void WebsiteInit(ESP8266WebServer *server);
@@ -155,7 +167,7 @@ extern void WebsiteNetworkConfigPage();
 extern void WebsiteMQTTConfigPage();
 extern void WebsiteLDRConfigPage();
 extern void WebsiteMiscConfigPage();
-
+extern void WebsiteInfoPage();
 
 extern void WebsiteRebootPage();
 extern void WebsiteResetPage();
