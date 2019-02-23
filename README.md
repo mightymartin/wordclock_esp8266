@@ -6,17 +6,18 @@ Hardware:
 - Temperature Sensor (to be determined)
 
 Features:
-- defineable hardware layout 
+- defineable hardware layout (leds.h)
 - word fading
 - display hour and minutes
 - display seconds
 - display temperature
 - 8 different color modes with HUE rotate
 - wifimanger
-- Webserver http://deviceip:80 (WIP)
+- Webserver http://deviceip:80
 - OTA
+- mdns
 - NTP time client
-- MQTT PUB / SUB
+- MQTT PUB / SUB (wip)
 - LDR driven brightness
 - different color modes 
 
