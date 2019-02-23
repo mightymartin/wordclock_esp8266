@@ -14,15 +14,14 @@ Features:
 - 8 different color modes with HUE rotate
 - wifimanger
 - Webserver http://deviceip:80 (WIP)
-- OTA http://deviceip:81/update
+- OTA
 - NTP time client
 - MQTT PUB / SUB
 - LDR driven brightness
 - different color modes 
 
 
-Todos befor V0.1:
-- Config layer for persistent data in EEPROM / SPIFF
+Todos befor V1.0:
 - tempsensor implementation
 - MQTT Sub: ON/OFF && BRIGHTNESS && COLORMODE && DISPLAYMODE (Non persistent)
 - MQTT Pub: current config as JSON to broker
