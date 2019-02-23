@@ -4,8 +4,8 @@
 static Ticker LDRTimer(LDRUpdate, 10000); 
 
 static uint16 measureBuffer[LDR_MEASURE_COUNT];
-static uint8 currentVal = MAX_FADE_STEPS-1;
-static uint8 targetVal  = MAX_FADE_STEPS-1;
+static uint8  currentVal = MAX_FADE_STEPS-1;
+static uint8  targetVal  = MAX_FADE_STEPS-1;
 
 static uint8 bufferpos = 0;
 
@@ -34,15 +34,13 @@ void LDRUpdate(){
     //###################
     //## Berechnen
     //###################
-    uint8 minStep = settings.l_min_bright;
-    uint8 thCount = sizeof(settings.l_treshold) / 2; //geteilt durch 2 wegen uint16
-    uint8 thStep = round((MAX_FADE_STEPS-minStep) / thCount);    
-    targetVal = minStep + (thStep-1);    
-
+    #define     TH_COUNT (sizeof(settings.l_treshold) / 2)
+        
+    targetVal = settings.l_min_bright;    
     if(settings.u_LDR){        
-        for(uint8 i=0; i < thCount; i++){
+        for(uint8 i=0; i < TH_COUNT; i++){
             if(LDRgetValue() >= settings.l_treshold[i]){                 
-                targetVal = minStep + (thStep*(i+1)) - 1;                
+                targetVal = settings.l_min_bright + ( (MAX_FADE_STEPS-settings.l_min_bright) * (i+1) / TH_COUNT ) - 1;                
             }   
             if(targetVal > MAX_FADE_STEPS-1){
                 targetVal = MAX_FADE_STEPS-1;
@@ -66,8 +64,8 @@ void LDRUpdate(){
     //###################
     //## Debug
     //###################
-    LogDebug("LDRADC:" + String(LDRgetValue()));
-    LogDebug("LDRPWM:" + String(LDRgetBrightness()));    
+    WebLogDebug("LDRADC:" + String(LDRgetValue()));
+    WebLogDebug("LDRPWM:" + String(LDRgetBrightness()));    
 }
 
 uint16 LDRgetValue(){

@@ -7,11 +7,17 @@
 #define LOGLEVEL_DBG    3
 
 #include "settings.h"
+#include "timeNTP.h"
+#include <WebSocketsServer.h>
 
-extern void LogDebug(String msg);
+extern void WebLogInit();
 
-extern void LogInfo(String msg);
+extern void WebLogDebug(String msg);
 
-extern void LogError(String msg);
+extern void WebLogInfo(String msg);
+
+extern void WebLogError(String msg);
+
+extern void WebLogTick();
 
 #endif

@@ -8,8 +8,6 @@
 #include "color.h"
 #include "draw.h"
 
-#define QUOTE(...) #__VA_ARGS__
-
 #define REQ_START           "/"
 #define REQ_MODES           "/mod"
 
@@ -25,7 +23,6 @@
 #define REQ_CONF_MISC       "/cmi"
 #define REQ_CONF_LDR        "/cld"
 
-#define REQ_LOGDATA         "/log"
 #define REQ_CONSOLE         "/con"
 #define REQ_OTA_SELECT      "/otasel"
 
@@ -191,23 +188,16 @@ const char SITE_RELOAD_WAIT[]   PROGMEM    = QUOTE( <div id="RLCOUNT"></div>
                                                     </script>);
 
 const char SITE_CONSOLE[]       PROGMEM    = QUOTE( <textarea readonly="" id="CONSOLE" name="CONSOLE" cols="340" wrap="off"></textarea>
-                                                    <script language="JavaScript" type="text/javascript">                                                        
-                                                        function tTick(){	                                                                                                                    
-                                                            var ta = document.getElementById('CONSOLE');
-                                                            if(ta){
-                                                                var x=new XMLHttpRequest();
-                                                                x.onreadystatechange=function(){
-                                                                    if(x.readyState==4&&x.status==200){
-                                                                        ta.value+=x.responseText+"\n";
-                                                                        ta.scrollTop=99999;
-                                                                    }
-                                                                };
-                                                                x.open('GET','{dest}',true);
-                                                                x.send();
-                                                            }                                                            
-                                                            setTimeout(tTick,1000);
-                                                        }                                                        
-                                                        tTick();                                                                                                                 
+                                                    <script language="JavaScript" type="text/javascript">                                                                                                                 
+                                                        function startWS(){
+                                                            Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
+                                                            Socket.onmessage = function(evt){
+                                                                var ta = document.getElementById('CONSOLE');
+                                                                ta.value+=evt.data+"\n";
+                                                                ta.scrollTop=99999;
+                                                            };                
+                                                        }                                                                                                             
+                                                        startWS();                                                                                                                
                                                     </script>);                                                    
 
 
@@ -228,8 +218,6 @@ extern void WebsiteLDRConfigPage();
 extern void WebsiteMiscConfigPage();
 extern void WebsiteInfoPage();
 extern void WebsiteConsolePage();
-
-extern void WebsiteLogData();
 
 extern void WebsiteSend(String page);
 

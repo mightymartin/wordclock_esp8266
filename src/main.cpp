@@ -28,21 +28,22 @@ void setup() {
   delay(500);
   
   //### Starte Serial  
+  WebLogInit();
   Serial.begin(CONF_SERIAL_BAUD);
 
-  LogInfo("");
-  LogInfo("--- Init ---");
+  WebLogInfo("");
+  WebLogInfo("--- Init ---");
   
-  LogInfo("Init Settings");
+  WebLogInfo("Init Settings");
   SettingsInit();
 
-  LogInfo("Start Hardware init");
+  WebLogInfo("Start Hardware init");
   LedInit();  
   ColorInit();
   DrawInit();
   LDRInit();
 
-  LogInfo("Start Wifimanger");
+  WebLogInfo("Start Wifimanger");
   WiFiManager wifiManager;  
   wifiManager.setConnectTimeout(10);
   wifiManager.setConfigPortalTimeout(180);
@@ -54,32 +55,33 @@ void setup() {
   wifiManager.autoConnect(ssid.c_str(), NULL);
 
   //NTP Zeit
-  LogInfo("Start Time init");
+  WebLogInfo("Start Time init");
   TimeInit();
 
   //### Init Website
-  LogInfo("Init Website");
+  WebLogInfo("Init Website");
   WebsiteInit(&server);  
   
   //### Init UpdateServer 
-  LogInfo("Init Updateserver");
+  WebLogInfo("Init Updateserver");
   httpUpdaterServer.setup(&server,REQ_OTA);
   
   //### Start Webserver
-  LogInfo("Start Webserver");
+  WebLogInfo("Start Webserver");
   server.begin();
 
   //### Start mDNS
   if(settings.u_MDNS == 1){
-      LogInfo("Start mDNS");
+      WebLogInfo("Start mDNS");
       MDNS.begin(settings.n_hostname); 
       MDNS.addService("http", "tcp", CONF_WEBSERVER_PORT);      
+      MDNS.addService("ws", "tcp", CONF_WEBSOCKET_PORT); 
       if(settings.u_MQTT){
           MDNS.addService("mqtt", "tcp", settings.m_port);
       }
   }
 
-  LogInfo("--- Init End ---");
+  WebLogInfo("--- Init End ---");
 }
 
 //##############################
@@ -97,4 +99,5 @@ void loop() {
   server.handleClient();  
 
   SettingsTick();
+  WebLogTick();
 }

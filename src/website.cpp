@@ -16,8 +16,7 @@ void WebsiteInit(ESP8266WebServer *server){
     _server->on(REQ_INFO, WebsiteInfoPage);
     _server->on(REQ_FACTORY_RESET, WebsiteFactoryResetPage);  
     _server->on(REQ_OTA_SELECT, WebsiteFirmwareUpdate);  
-    _server->on(REQ_CONSOLE, WebsiteConsolePage);  
-    _server->on(REQ_LOGDATA, WebsiteLogData);  
+    _server->on(REQ_CONSOLE, WebsiteConsolePage);      
 }
 
 void WebsideApplyArgs(){
@@ -71,12 +70,6 @@ void WebsiteAction(){
             SettingsSoftRestart();           
         }
     }
-}
-
-void WebsiteLogData(){
-    String page = String(TimeSeconds());
-    _server->sendHeader("Content-Length", String(page.length()));
-    _server->send(200, "text/html", page); 
 }
 
 void WebsiteStartPage(){
@@ -139,7 +132,6 @@ void WebsiteConsolePage(){
     page.replace("{phead}", "Console");    
 
     page += FPSTR(SITE_CONSOLE);
-    page.replace("{dest}", REQ_LOGDATA);
     
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Back"));

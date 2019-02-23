@@ -25,12 +25,15 @@ void DrawTick(){
 void DrawUpdate(){
     if(settings.d_mode == DRAW_MODE_CLOCK){
         if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes || settings.d_mode != drawLastMode){   
-            LogDebug(String(TimeHours()) + ":" + String(TimeMinutes()));            
+            WebLogDebug("TIME: " + String(TimeHours()) + ":" + String(TimeMinutes()));  
+            
+            WebLogDebug(SettingsToJson());
+
             DrawUpdateClock(TimeHours(), TimeMinutes());
         }
     } else if(settings.d_mode == DRAW_MODE_SECONDS){
         if(TimeSeconds() != drawClockLastSeconds || settings.d_mode != drawLastMode){
-            LogDebug("sec: " + String(TimeSeconds()));
+            WebLogDebug("SEC: " + String(TimeSeconds()));
             DrawUpdateSeconds(TimeSeconds());
         }
     } else if(settings.d_mode == DRAW_MODE_TEMP){

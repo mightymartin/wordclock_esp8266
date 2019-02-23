@@ -8,13 +8,13 @@ uint8 doRestart = 0;
 void    SettingsInit(){
     SettingsRead();
     if(!String(settings.version).equals(FW_VERSION)){
-        LogInfo("Settings Version mismatch!");   
+        WebLogInfo("Settings Version mismatch!");   
         settings = {};     
         SettingsClear();        
         SettingsSetDefaults();
         SettingsWrite();
     }else{
-        LogInfo("Done");        
+        WebLogInfo("Done");        
     }
 }
 
@@ -60,7 +60,7 @@ void    SettingsWrite(){
     delay(200);
     EEPROM.commit();
     EEPROM.end();
-    LogInfo("Wrote Settings Version: " + String(settings.version));
+    WebLogInfo("Wrote Settings Version: " + String(settings.version));
 }
 
 void    SettingsRead(){
@@ -68,7 +68,7 @@ void    SettingsRead(){
     EEPROM.get(EEPROM_START_ADDRESS,settings);
     delay(200);
     EEPROM.end();
-    LogInfo("Read Settings Version: " + String(settings.version));
+    WebLogInfo("Read Settings Version: " + String(settings.version));
 }
 
 void    SettingsClear(){    
@@ -79,7 +79,7 @@ void    SettingsClear(){
     delay(200);
     EEPROM.commit();
     EEPROM.end();
-    LogInfo("EEPROM Cleared");
+    WebLogInfo("EEPROM Cleared");
 }
 
 void    SettingsWifiReset(){    
@@ -169,8 +169,55 @@ void    SettingsSetValue(String key, String value){
     }        
 }
 
-void    SettingsToJson(String *jsonDest){
+//TODO move settingstojson to mqtt part
+const char PROP_STR[]    PROGMEM    = QUOTE( "{key}":"{val}", );
+const char PROP_INT[]    PROGMEM    = QUOTE( "{key}":{val}, );
+
+String  getPropInt(String key, uint32 val){
+    String ret = FPSTR(PROP_INT);
+    ret.replace("{key}", key);
+    ret.replace("{val}", String(val) );
+    return ret;
+}  
+
+String  getPropStr(String key, String val){
+    String ret = FPSTR(PROP_STR);
+    ret.replace("{key}", key);
+    ret.replace("{val}", val );
+    return ret;
+}
+
+String    SettingsToJson(){ 
+    String jsonDest = "{";   
+    jsonDest += getPropInt(U_ONOFF_TAG,                 settings.u_DISPLAYON);
+
+    jsonDest += getPropInt(C_MODE_TAG,                  settings.c_mode);
+    jsonDest += getPropInt(C_HUE_ROTATE_RB_TAG,         settings.c_hue_rotate_rb);
+    jsonDest += getPropInt(C_HUE_ROTATE_DURATION_TAG,   settings.c_hue_rotate_duration);
+    jsonDest += getPropInt(C_PLAIN_RED_TAG,             settings.c_plain_red);
+    jsonDest += getPropInt(C_PLAIN_GREEN_TAG,           settings.c_plain_green);
+    jsonDest += getPropInt(C_PLAIN_BLUE_TAG,            settings.c_plain_blue);
+    jsonDest += getPropInt(C_BRIGHTNESS_TAG,            settings.c_brightness);
+
+    jsonDest += getPropInt(L_MIN_BRIGHT_TAG,            settings.l_min_bright);    
+    for(uint8 idx = 0; idx < sizeof(settings.l_treshold)/2 ; idx++){   //geteilt durch 2 wegen uint16
+        jsonDest += getPropInt(L_TRESHOLD_TAG + String(idx), settings.l_treshold[idx]);
+    }
     
+    jsonDest += getPropInt(D_MODE_TAG,                  settings.d_mode);
+    jsonDest += getPropInt(D_CLK_REGION_TAG,            settings.d_clk_region);
+    jsonDest += getPropInt(D_CLK_ITIS_MODE_TAG,         settings.d_clk_itis_mode);
+    jsonDest += getPropInt(D_CLK_FADE_TAG,              settings.d_clk_fade); 
+
+    jsonDest += getPropStr(N_HOSTNAME_TAG,              String(settings.n_hostname));
+    jsonDest += getPropStr(G_VERSION,                   String(settings.version));
+    jsonDest += getPropStr(G_TIME,                      "HH:MM:SS");
+
+    jsonDest.remove(jsonDest.length()-1);   
+
+    jsonDest += "}";
+
+    return jsonDest;
 }
 
 //##############

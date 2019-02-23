@@ -5,11 +5,14 @@
 #include <Arduino.h> 
 #include <EEPROM.h>
 
+#define QUOTE(...) #__VA_ARGS__
+
 #define EEPROM_START_ADDRESS    0
 #define EEPROM_SIZE             4095
 
-#define FW_VERSION              "0.9"
+#define FW_VERSION              "0.11"
 #define CONF_WEBSERVER_PORT     80
+#define CONF_WEBSOCKET_PORT     81
 #define CONF_SERIAL_BAUD        115200
 #define MAX_FADE_STEPS	        32
 
@@ -24,6 +27,9 @@
     #error unknown pwm step size
 #endif
 
+
+#define G_VERSION                   "GVER"   
+#define G_TIME                      "GTIME"   
 
 #define U_LDR_TAG                   "ULDR"   
 #define U_MQTT_TAG                  "UMQTT" 
@@ -62,7 +68,7 @@
 
 struct Settings_t{
     //General
-    char      version[4]              ; 
+    char      version[5]              ; 
     uint8     u_LDR                   ;
     uint8     u_MQTT                  ;
     uint8     u_TEMP                  ;
@@ -116,7 +122,7 @@ extern void     SettingsSetDefaults();
 
 extern uint32_t SettingsGetChecksum();
 extern void     SettingsSetValue(String key, String value);
-extern void     SettingsToJson(String *jsonDest);
+extern String   SettingsToJson();
 
 extern void     SettingsWrite();
 extern void     SettingsRead();
