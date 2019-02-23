@@ -1,8 +1,9 @@
-#include <ESP8266WiFi.h> 
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
+#include <ESP8266mDNS.h>
 #include <WiFiManager.h>
 
+#include "logging.h"
 #include "leds.h"
 #include "color.h"
 #include "timeNTP.h"
@@ -11,73 +12,74 @@
 #include "settings.h"
 #include "website.h"
 
+
 //##############################
 //## Instances
 //##############################
 ESP8266WebServer server(CONF_WEBSERVER_PORT);
-ESP8266WebServer updateServer(CONF_UPDATESERVER_PORT);
 ESP8266HTTPUpdateServer httpUpdaterServer;
-
-
-//##############################
-//## Diverses noch in func file!!!!
-//##############################
-void log_debug(String msg){
-  #ifdef CONF_DEBUG
-    Serial.println(msg);
-  #endif
-}
-
-void log(String msg){
-  Serial.println(msg);  
-}
-
-void saveConfigCallback () {
-  log_debug("Saved -> do Reset");
-  ESP.reset();
-}
 
 //##############################
 //## Setup
 //##############################
 
 void setup() {
-  //### Starte Serial
-  Serial.begin(CONF_SERIAL_BAUD);
-  log("");
-  log("--- Init ---");
+  //### calm after reset
+  delay(500);
   
-  log("Start Hardware init");
+  //### Starte Serial  
+  Serial.begin(CONF_SERIAL_BAUD);
+
+  LogInfo("");
+  LogInfo("--- Init ---");
+  
+  LogInfo("Init Settings");
+  SettingsInit();
+
+  LogInfo("Start Hardware init");
   LedInit();  
   ColorInit();
   DrawInit();
   LDRInit();
 
-  log("Start Time init");
-  TimeInit();
-
-  log("Start Wifimanger");
+  LogInfo("Start Wifimanger");
   WiFiManager wifiManager;  
   wifiManager.setConnectTimeout(10);
   wifiManager.setConfigPortalTimeout(180);
-  wifiManager.setSaveConfigCallback(saveConfigCallback);
-  #ifndef CONF_DEBUG
-    wifiManager.setDebugOutput(false);
-  #endif  
-  String ssid = settings.n_ap_ssid + String(ESP.getChipId());
+  //wifiManager.setSaveConfigCallback(saveConfigCallback);
+  if(settings.u_LOGGING >= LOGLEVEL_DBG){
+    wifiManager.setDebugOutput(true);
+  }
+  String ssid = settings.n_hostname + String(ESP.getChipId());
   wifiManager.autoConnect(ssid.c_str(), NULL);
 
-  //### Starte Webserver
-  log("Start Webserver");
+  //NTP Zeit
+  LogInfo("Start Time init");
+  TimeInit();
+
+  //### Init Website
+  LogInfo("Init Website");
   WebsiteInit(&server);  
+  
+  //### Init UpdateServer 
+  LogInfo("Init Updateserver");
+  httpUpdaterServer.setup(&server,REQ_OTA);
+  
+  //### Start Webserver
+  LogInfo("Start Webserver");
   server.begin();
 
-  //### Starte UpdateServer 
-  log("Start Updateserver");
-  httpUpdaterServer.setup(&updateServer);
-  updateServer.begin();
+  //### Start mDNS
+  if(settings.u_MDNS == 1){
+      LogInfo("Start mDNS");
+      MDNS.begin(settings.n_hostname); 
+      MDNS.addService("http", "tcp", CONF_WEBSERVER_PORT);      
+      if(settings.u_MQTT){
+          MDNS.addService("mqtt", "tcp", settings.m_port);
+      }
+  }
 
-  log("--- Init End ---");
+  LogInfo("--- Init End ---");
 }
 
 //##############################
@@ -90,7 +92,9 @@ void loop() {
   DrawTick();
   TimeTick();
   LDRTick();
-  
-  server.handleClient();
-  updateServer.handleClient();  
+  SettingsTick();
+
+  server.handleClient();  
+
+  SettingsTick();
 }

@@ -3,6 +3,8 @@
 
 
 //Worker Vars
+static uint8 drawLastMode               = 255;
+
 static uint8 drawClockLastSeconds       = 0;
 static uint8 drawClockLastMinutes       = 0;
 static uint8 drawClockLastHour          = 0;
@@ -22,24 +24,25 @@ void DrawTick(){
 
 void DrawUpdate(){
     if(settings.d_mode == DRAW_MODE_CLOCK){
-        if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes){   
-            //Serial.println(TimeHours()); //TODO Debug
-            //Serial.println(TimeMinutes()); //TODO Debug         
+        if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes || settings.d_mode != drawLastMode){   
+            LogDebug(String(TimeHours()) + ":" + String(TimeMinutes()));            
             DrawUpdateClock(TimeHours(), TimeMinutes());
         }
     } else if(settings.d_mode == DRAW_MODE_SECONDS){
-        if(TimeSeconds() != drawClockLastSeconds){
-            //Serial.println(TimeSeconds()); //TODO Debug
+        if(TimeSeconds() != drawClockLastSeconds || settings.d_mode != drawLastMode){
+            LogDebug("sec: " + String(TimeSeconds()));
             DrawUpdateSeconds(TimeSeconds());
         }
     } else if(settings.d_mode == DRAW_MODE_TEMP){
-        if(21 != drawLastTemp){            
+        if(21 != drawLastTemp || settings.d_mode != drawLastMode){            
             DrawUpdateTemp(21);
         }
     } else {
         //drawmode not valid set default:
         settings.d_mode = DRAW_MODE_CLOCK;
     }
+
+    drawLastMode = settings.d_mode;
 }
 
 //#################

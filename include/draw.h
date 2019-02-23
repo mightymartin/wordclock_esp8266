@@ -5,6 +5,7 @@
 #include "timeNTP.h"
 #include "font.h"
 #include "leds.h"
+#include "logging.h"
 
 #define DRAW_MODE_CLOCK           0
 #define DRAW_MODE_SECONDS         1

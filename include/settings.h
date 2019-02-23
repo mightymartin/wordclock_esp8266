@@ -1,16 +1,18 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <Arduino.h>
-#include <ArduinoJson.h>
-#include "FS.h"
+#include <ESP8266WiFi.h> 
+#include <Arduino.h> 
+#include <EEPROM.h>
 
+#define EEPROM_START_ADDRESS    0
+#define EEPROM_SIZE             4095
+
+#define FW_VERSION              "0.8"
 #define CONF_WEBSERVER_PORT     80
-#define CONF_UPDATESERVER_PORT  81
 #define CONF_SERIAL_BAUD        115200
-#define CONF_DEBUG              1
+#define MAX_FADE_STEPS	        32
 
-#define MAX_FADE_STEPS	            32
 #if (MAX_FADE_STEPS==32)
     const uint8 pwm_table[MAX_FADE_STEPS] = {
                                                         0,   1,   3,   4,   5,   6,   7,   8,
@@ -26,11 +28,11 @@
 #define U_LDR_TAG                   "ULDR"   
 #define U_MQTT_TAG                  "UMQTT" 
 #define U_TEMP_TAG                  "UTEMP" 
+#define U_MDNS_TAG                  "UMDNS" 
+#define U_LOGG_TAG                  "ULOGG" 
 #define N_NTPINTERVAL_TAG           "NNTPI" 
 #define N_NTPSERVER_TAG             "NNTPS"
 #define N_HOSTNAME_TAG              "NHOST"
-#define N_AP_SSID_TAG               "NSSID"
-#define N_AP_PASS_TAG               "NPASS"
 #define M_PORT_TAG                  "MPORT"
 #define M_HOST_TAG                  "MBROK"
 #define M_CLIENT_ID_TAG             "MCLID"
@@ -58,56 +60,67 @@
 
 struct Settings_t{
     //General
-    uint8     version                 = 2;
-    uint8     u_LDR                   = 1;
-    uint8     u_MQTT                  = 0;
-    uint8     u_TEMP                  = 1;
+    char      version[4]              ; 
+    uint8     u_LDR                   ;
+    uint8     u_MQTT                  ;
+    uint8     u_TEMP                  ;
+    uint8     u_MDNS                  ;
+    uint8     u_LOGGING               ;
 
     //network
-    uint32_t    n_ntpinterval           = 60000;
-    char        n_ntpserver[32]         = "de.pool.ntp.org";    
-    char        n_hostname[32]          = "Wordclock";
-    char        n_ap_ssid[32]           = "Wordclock"; //??
-    char        n_ap_pass[32]           = "";
+    uint32_t    n_ntpinterval           ;
+    char        n_ntpserver[32]         ;    
+    char        n_hostname[32]          ;
 
     //MQTT
-    uint16_t    m_port                  = 1883;
-    char        m_host[32]              = "";    
-    char        m_client_id[32]         = "";
-    char        m_user[32]              = "";
-    char        m_pass[32]              = "";
-    char        m_topic[32]             = "";
-    char        m_fulltopic[32]         = "";
+    uint16_t    m_port                  ;
+    char        m_host[32]              ;    
+    char        m_client_id[32]         ;
+    char        m_user[32]              ;
+    char        m_pass[32]              ;
+    char        m_topic[32]             ;
+    char        m_fulltopic[32]         ;
 
     //Color
-    uint8       c_mode                  = 2;
-    uint8       c_hue_rotate_rb         = 1;
-    uint32_t    c_hue_rotate_duration   = 300000;
-    uint8       c_plain_red             = 255;
-    uint8       c_plain_green           = 255;
-    uint8       c_plain_blue            = 0;
+    uint8       c_mode                  ;
+    uint8       c_hue_rotate_rb         ;
+    uint32_t    c_hue_rotate_duration   ;
+    uint8       c_plain_red             ;
+    uint8       c_plain_green           ;
+    uint8       c_plain_blue            ;
     
-    uint8       c_brightness            = MAX_FADE_STEPS-1;     
+    uint8       c_brightness            ;
     
-    uint8       l_min_bright            = 4;     
-    uint16      l_treshold[10]         = {100,300,400,500,600,700,750,800,850,900};
+    uint8       l_min_bright            ;    
+    uint16      l_treshold[10]          ;
     
     //Draw
-    uint8       d_mode                   = 0;
-    uint8       d_clk_region             = 2;
-    uint8       d_clk_itis_mode          = 1;
-    uint8       d_clk_fade               = 1;
+    uint8       d_mode                  ;
+    uint8       d_clk_region            ;
+    uint8       d_clk_itis_mode         ;
+    uint8       d_clk_fade              ;
 
     
 }  __attribute__((packed));
 
 extern Settings_t settings;
 
+extern uint8    doRestart;
+
+extern void     SettingsInit();
+
+extern void     SettingsSetDefaults();
+
 extern uint32_t SettingsGetChecksum();
 extern void     SettingsSetValue(String key, String value);
 extern void     SettingsToJson(String *jsonDest);
+
 extern void     SettingsWrite();
 extern void     SettingsRead();
-extern void     SettingsFactoryReset();
+extern void     SettingsClear();
+
+extern void     SettingsWifiReset();
+extern void     SettingsSoftRestart();
+extern void     SettingsTick();
 
 #endif

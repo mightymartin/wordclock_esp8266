@@ -37,7 +37,7 @@ void LDRUpdate(){
     uint8 minStep = settings.l_min_bright;
     uint8 thCount = sizeof(settings.l_treshold) / 2; //geteilt durch 2 wegen uint16
     uint8 thStep = round((MAX_FADE_STEPS-minStep) / thCount);    
-    targetVal = thStep-1;    
+    targetVal = minStep + (thStep-1);    
 
     if(settings.u_LDR){        
         for(uint8 i=0; i < thCount; i++){
@@ -66,8 +66,8 @@ void LDRUpdate(){
     //###################
     //## Debug
     //###################
-    //Serial.println(LDRgetValue());   
-    //Serial.println(LDRgetBrightness());       
+    LogDebug("LDRADC:" + String(LDRgetValue()));
+    LogDebug("LDRPWM:" + String(LDRgetBrightness()));    
 }
 
 uint16 LDRgetValue(){

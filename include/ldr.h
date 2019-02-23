@@ -3,6 +3,7 @@
 
 #include <Ticker.h>
 #include "leds.h"
+#include "logging.h"
 
 #define LDR_MEASURE_COUNT  5
 #define LDR_MEASURE_PIN    A0

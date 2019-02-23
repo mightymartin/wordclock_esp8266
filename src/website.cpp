@@ -14,7 +14,8 @@ void WebsiteInit(ESP8266WebServer *server){
     _server->on(REQ_CONF_COLOR, WebsiteColorConfPage);  
     _server->on(REQ_CONF_DRAW, WebsiteDrawConfPage);
     _server->on(REQ_INFO, WebsiteInfoPage);
-      
+    _server->on(REQ_FACTORY_RESET, WebsiteFactoryResetPage);  
+    _server->on(REQ_OTA_SELECT, WebsiteFirmwareUpdate);  
 }
 
 void WebsideApplyArgs(){
@@ -26,7 +27,7 @@ void WebsideApplyArgs(){
 void WebsiteAction(){
     if (_server->hasArg("ACTION") == true){
         String message = "";
-        uint8 doReboot = 0;
+        uint8 reqReboot = 0;
         if(_server->arg("ACTION").equalsIgnoreCase("SAVE")){
             WebsideApplyArgs();
             SettingsWrite();
@@ -34,37 +35,95 @@ void WebsiteAction(){
         } else if(_server->arg("ACTION").equalsIgnoreCase("SAVER")){
             WebsideApplyArgs();
             SettingsWrite();            
-            doReboot = 1;
+            reqReboot = 1;
             message = "Settings saved -> Reboot";
         } else if(_server->arg("ACTION").equalsIgnoreCase("APPLY")){
             WebsideApplyArgs();
             message = "Settings applied";
         } else if(_server->arg("ACTION").equalsIgnoreCase("REBOOT")){            
-            doReboot = 1;
-            message = "Reboot";
-        } else if(_server->arg("ACTION").equalsIgnoreCase("RESET")){
-            SettingsFactoryReset();
-            SettingsWrite();            
-            doReboot = 1;
-            message = "Settings set to defaults -> Reboot";
+            reqReboot = 1;
+            message = "Manual Reboot";
+        } else if(_server->arg("ACTION").equalsIgnoreCase("RESETS")){
+            SettingsClear();                  
+            reqReboot = 1;
+            message = "Settings Reset";
+        } else if(_server->arg("ACTION").equalsIgnoreCase("RESETW")){
+            SettingsWifiReset();                  
+            reqReboot = 1;
+            message = "Wifi Reset; Wifimanager enabled";
         }
 
-        if(doReboot > 0 ){
+        if(reqReboot > 0 ){
             //Seite muss neu geladen werden. Nach X sekunden wird redirected
             String page = FPSTR(SITE_HEAD);    
             page += FPSTR(SITE_BGN); 
-            page.replace("{emeta}" , FPSTR(SITE_RELOAD_WAIT));
-            page.replace("{phead}", message);    
-            page.replace("{ptit}" , "Restart");
-    
-            _server->sendHeader("Content-Length", String(page.length()));
-            _server->send(200, "text/html", page); 
 
-            //TODO Funkt nicht 
-            delay(1000);
-            ESP.reset();
+            page.replace("{phead}", message);    
+            page.replace("{pcat}" , "Restarting...");
+    
+            page += FPSTR(SITE_RELOAD_WAIT); 
+            page += FPSTR(SITE_END); 
+
+            WebsiteSend(page);  
+            
+            SettingsSoftRestart();           
         }
     }
+}
+
+void WebsiteFirmwareUpdate(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN);  
+    page.replace("{pcat}" , F("Fimrwareupdate"));
+
+    page += FPSTR(SITE_UPDATE_FORM);
+    page.replace("{dest}" , REQ_OTA);
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Back"));
+    page.replace("{dest}", REQ_CONFIG);
+
+    page += FPSTR(SITE_END); 
+    
+    WebsiteSend(page); 
+    
+}
+
+void WebsiteFactoryResetPage(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN);  
+    page.replace("{pcat}" , F("Factory Reset"));
+
+    page += FPSTR(SITE_FORM_BGN);
+    page.replace("{dest}", REQ_CONFIG);
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Abort"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F(""));
+    page.replace("{col}", F("bgrn"));
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Reset Settings"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("RESETS"));
+    page.replace("{col}", F("bred"));
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Reset WiFi"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("RESETW"));
+    page.replace("{col}", F("bred"));
+
+    page += FPSTR(SITE_FORM_END);
+
+    page += FPSTR(SITE_END); 
+    
+    WebsiteSend(page);  
 }
 
 void WebsiteStartPage(){
@@ -467,12 +526,23 @@ void WebsiteConfigPage(){
     page.replace("{tit}", F("Misc. Config"));
     page.replace("{dest}", REQ_CONF_MISC);
 
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Firmware Update"));
+    page.replace("{dest}", REQ_OTA_SELECT);
+
     page += FPSTR(SITE_HREF_EXT);  
     page.replace("{tit}", F("Restart"));
     page.replace("{id}",  F("ACTION"));
     page.replace("{val}", F("REBOOT"));
     page.replace("{col}", F("bred"));
     page.replace("{dest}", REQ_START);
+
+    page += FPSTR(SITE_HREF_EXT);  
+    page.replace("{tit}", F("Factory Reset"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F(""));
+    page.replace("{col}", F("bred"));
+    page.replace("{dest}", REQ_FACTORY_RESET);
 
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Home"));
@@ -499,18 +569,6 @@ void WebsiteNetworkConfigPage(){
     page.replace("{val}", String(settings.n_hostname));
     page.replace("{len}", F("32"));
 
-    page += FPSTR(SITE_INP_T);  
-    page.replace("{tit}", F("AP SSID Prefix"));
-    page.replace("{id}",  F(N_AP_SSID_TAG)); 
-    page.replace("{val}", String(settings.n_ap_ssid));
-    page.replace("{len}", F("32"));
-
-    page += FPSTR(SITE_INP_T);  
-    page.replace("{tit}", F("AP Password"));
-    page.replace("{id}",  F(N_AP_PASS_TAG)); 
-    page.replace("{val}", String(settings.n_ap_pass));
-    page.replace("{len}", F("32"));
-    
     page += FPSTR(SITE_INP_N);  
     page.replace("{tit}", F("NTP Interval"));
     page.replace("{id}",  F(N_NTPINTERVAL_TAG)); 
@@ -716,6 +774,42 @@ void WebsiteMiscConfigPage(){
     page.replace("{oval}", F("0"));
     page.replace("{osel}", (settings.u_TEMP == 0) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_END);  
+
+    page += FPSTR(SITE_INP_CBX_BGN);  
+    page.replace("{tit}", F("use MDNS"));
+    page.replace("{val}", String(settings.u_MDNS));
+    page.replace("{id}",  F(U_MDNS_TAG)); 
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("yes"));
+    page.replace("{oval}", F("1"));
+    page.replace("{osel}", (settings.u_MDNS == 1) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("no"));
+    page.replace("{oval}", F("0"));
+    page.replace("{osel}", (settings.u_MDNS == 0) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_END);  
+
+    page += FPSTR(SITE_INP_CBX_BGN);  
+    page.replace("{tit}", F("Log Level"));
+    page.replace("{id}",  F(U_LOGG_TAG)); 
+    page.replace("{val}",  String(settings.u_LOGGING)); 
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("off"));
+    page.replace("{oval}", String(LOGLEVEL_OFF));
+    page.replace("{osel}", (settings.u_LOGGING == LOGLEVEL_OFF) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("error"));
+    page.replace("{oval}", String(LOGLEVEL_ERR));
+    page.replace("{osel}", (settings.u_LOGGING == LOGLEVEL_ERR) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("info"));
+    page.replace("{oval}", String(LOGLEVEL_INF));
+    page.replace("{osel}", (settings.u_LOGGING == LOGLEVEL_INF) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("debug"));
+    page.replace("{oval}", String(LOGLEVEL_DBG));
+    page.replace("{osel}", (settings.u_LOGGING == LOGLEVEL_DBG) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_END); 
 
     page += FPSTR(SITE_BUTTON);  
     page.replace("{tit}", F("Save & Restart"));

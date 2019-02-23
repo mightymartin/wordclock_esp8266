@@ -1,6 +1,98 @@
 #include "settings.h"
+#include "logging.h"
 
 Settings_t settings;
+
+uint8 doRestart = 0;
+
+void    SettingsInit(){
+    SettingsRead();
+    if(!String(settings.version).equals(FW_VERSION)){
+        LogInfo("Settings Version mismatch!");   
+        settings = {};     
+        SettingsClear();        
+        SettingsSetDefaults();
+        SettingsWrite();
+    }else{
+        LogInfo("Done");        
+    }
+}
+
+void SettingsSetDefaults(){
+    strcpy(settings.version,FW_VERSION); 
+
+    settings.u_LDR                   = 1;
+    settings.u_MQTT                  = 0;
+    settings.u_TEMP                  = 1;
+    settings.u_MDNS                  = 1;
+    settings.u_LOGGING               = 2;
+    settings.n_ntpinterval           = 60000;
+    
+    strcpy(settings.n_ntpserver,"de.pool.ntp.org");    
+    strcpy(settings.n_hostname ,"Wordclock");
+
+    settings.m_port                  = 1883;    
+    settings.c_mode                  = 2;
+    settings.c_hue_rotate_rb         = 1;
+    settings.c_hue_rotate_duration   = 300000;
+    settings.c_plain_red             = 255;
+    settings.c_plain_green           = 255;
+    settings.c_plain_blue            = 0;
+    settings.c_brightness            = MAX_FADE_STEPS-1;     
+    settings.l_min_bright            = 4;     
+    settings.l_treshold[0]           = 100;
+    settings.l_treshold[1]           = 300;
+    settings.l_treshold[2]           = 400;
+    settings.l_treshold[3]           = 500;
+    settings.l_treshold[4]           = 600;
+    settings.l_treshold[5]           = 700;
+    settings.l_treshold[6]           = 750;
+    settings.l_treshold[7]           = 800;
+    settings.l_treshold[8]           = 850;
+    settings.l_treshold[9]           = 900;
+    settings.d_mode                  = 0;
+    settings.d_clk_region            = 2;
+    settings.d_clk_itis_mode         = 1;
+    settings.d_clk_fade              = 1;
+}
+
+void    SettingsWrite(){    
+    EEPROM.begin(EEPROM_SIZE);
+    EEPROM.put(EEPROM_START_ADDRESS,settings);
+    delay(200);
+    EEPROM.commit();
+    EEPROM.end();
+    LogInfo("Wrote Settings Version: " + String(settings.version));
+}
+
+void    SettingsRead(){
+    EEPROM.begin(EEPROM_SIZE);
+    EEPROM.get(EEPROM_START_ADDRESS,settings);
+    delay(200);
+    EEPROM.end();
+    LogInfo("Read Settings Version: " + String(settings.version));
+}
+
+void    SettingsClear(){    
+    EEPROM.begin(EEPROM_SIZE);
+    for (int i = EEPROM_START_ADDRESS ; i < EEPROM_SIZE ; i++) {
+        EEPROM.write(i, 0);
+    }
+    delay(200);
+    EEPROM.commit();
+    EEPROM.end();
+    LogInfo("EEPROM Cleared");
+}
+
+void    SettingsWifiReset(){    
+    //Erase Wifi
+    WiFi.persistent(false);     
+    WiFi.disconnect(true);
+    WiFi.persistent(true);
+
+    //Erase Config
+    ESP.eraseConfig();
+}
 
 uint32_t SettingsGetChecksum(){
     uint32_t checksum = 0;
@@ -20,16 +112,16 @@ void    SettingsSetValue(String key, String value){
         settings.u_MQTT = (uint8)value.toInt();
     }else if(key.equals(U_TEMP_TAG)){
         settings.u_TEMP = (uint8)value.toInt();
+    }else if(key.equals(U_MDNS_TAG)){
+        settings.u_MDNS = (uint8)value.toInt();
+    }else if(key.equals(U_LOGG_TAG)){
+        settings.u_LOGGING = (uint8)value.toInt();
     }else if(key.equals(N_NTPINTERVAL_TAG)){    
         settings.n_ntpinterval = (uint32)value.toInt();
     }else if(key.equals(N_NTPSERVER_TAG)){    
         strcpy(settings.n_ntpserver, value.c_str());
     }else if(key.equals(N_HOSTNAME_TAG)){    
         strcpy(settings.n_hostname, value.c_str());
-    }else if(key.equals(N_AP_SSID_TAG)){    
-        strcpy(settings.n_ap_ssid, value.c_str());
-    }else if(key.equals(N_AP_PASS_TAG)){
-        strcpy(settings.n_ap_pass, value.c_str());
     }else if(key.equals(M_PORT_TAG)){
         settings.m_port = (uint16)value.toInt();
     }else if(key.equals(M_HOST_TAG)){    
@@ -74,38 +166,23 @@ void    SettingsSetValue(String key, String value){
         settings.d_clk_itis_mode = (uint8)value.toInt();
     }else if(key.equals(D_CLK_FADE_TAG)){    
         settings.d_clk_fade = (uint8)value.toInt();
-    }
-
-                  
-         
-   
-             
-           
-            
-            
-         
-                  
-            
-         
-                 
-        
-
-        // settings.u_LDR = key.toInt()
-        
+    }        
 }
 
 void    SettingsToJson(String *jsonDest){
     
 }
 
-void    SettingsWrite(){
-
+//##############
+//### Restart 
+//##############
+void    SettingsSoftRestart(){
+    doRestart = 1;
 }
 
-void    SettingsRead(){
-
-}
-
-void    SettingsFactoryReset(){
-
+void    SettingsTick(){
+    if(doRestart){
+        doRestart = 0;
+        ESP.reset();
+    }
 }

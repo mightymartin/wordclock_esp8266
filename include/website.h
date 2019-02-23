@@ -3,6 +3,7 @@
 
 #include <ESP8266WebServer.h>
 #include "settings.h"
+#include "logging.h"
 #include "timeNTP.h"
 #include "color.h"
 #include "draw.h"
@@ -11,23 +12,27 @@
 
 #define REQ_START           "/"
 #define REQ_MODES           "/mod"
-#define REQ_CONFIG          "/cnf"
 
+#define REQ_INFO            "/inf"
+#define REQ_FACTORY_RESET   "/fcr"
+#define REQ_OTA             "/ota"
+
+#define REQ_CONFIG          "/cnf"
 #define REQ_CONF_DRAW       "/cdr"
 #define REQ_CONF_COLOR      "/cco"
-
 #define REQ_CONF_NETWORK    "/cne"
 #define REQ_CONF_MQTT       "/cmq"
 #define REQ_CONF_MISC       "/cmi"
 #define REQ_CONF_LDR        "/cld"
 
-#define REQ_INFO           "/inf"
+#define REQ_OTA_SELECT      "/otasel"
+
+
 
 const char SITE_HEAD[]          PROGMEM = QUOTE(    <html>
                                                         <head>
                                                             <meta charset="utf-8">
-                                                            <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-                                                            {emeta}
+                                                            <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">                                                            
                                                             <title>{ptit}</title>
                                                             <style>
                                                                 div,fieldset,input,select{
@@ -151,7 +156,39 @@ const char SITE_HREF[]          PROGMEM    = QUOTE( <form method="post" action="
 const char SITE_HREF_EXT[]      PROGMEM    = QUOTE( <form method="post" action="{dest}">
                                                         <button name="{id}" type="submit" value="{val}" class="button {col}">{tit}</button>
                                                     </form>);
-const char SITE_RELOAD_WAIT[]      PROGMEM    = QUOTE( <meta http-equiv="refresh" content="6; url={dest}"> );
+
+const char SITE_UPDATE_FORM[]   PROGMEM    = QUOTE( <form method='POST' action="{dest}" enctype='multipart/form-data'>
+                                                        <input  name='update' type='file'>
+                                                        <button type="submit" class="button bred" value='Update'>Update</button>                                                        
+                                                    </form>);
+
+const char SITE_RELOAD_WAIT[]   PROGMEM    = QUOTE( <div id="RLCOUNT"></div>
+                                                    <script language="JavaScript" type="text/javascript">
+                                                        var tickM = 10;
+                                                        var tickC = 0;
+                                                        function tTick(){	                                                                                                                    
+                                                            if(tickM==tickC){
+                                                                location.href='.';
+                                                                return;
+                                                            }                                                            
+                                                            var tickL=tickM-tickC;
+	                                                        document.getElementById('RLCOUNT').innerHTML="Reload Page in " + tickL + "s";
+                                                            tickC++;
+                                                            setTimeout(tTick,1000);
+                                                        }                                                        
+                                                        tTick();                                                                                                                 
+                                                    </script>);
+
+const char SITE_CONSOLE[]       PROGMEM    = QUOTE( <div id="CONSOLE"></div>
+                                                    <script language="JavaScript" type="text/javascript">
+                                                        function startWS(){
+                                                            Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
+                                                            Socket.onmessage = function(evt){
+                                                                document.getElementById("CONSOLE").innerHTML += evt.data + "<br/>";
+                                                            }
+                                                        }                                                                                                             
+                                                        startWS();                                                                                                                 
+                                                    </script>);                                                    
 
 
 
@@ -162,6 +199,8 @@ extern void WebsiteModesPage ();
 extern void WebsiteDrawConfPage ();
 extern void WebsiteColorConfPage();
 
+extern void WebsiteFirmwareUpdate();
+extern void WebsiteFactoryResetPage();
 extern void WebsiteConfigPage();
 extern void WebsiteNetworkConfigPage();
 extern void WebsiteMQTTConfigPage();
