@@ -6,6 +6,7 @@ static NeoPixelBus<LED_PIXEL_TYP, LED_PIXEL_METHOD> neoPixelStrip(LED_COUNT, LED
 static uint8    uiDirty = 0;
 static uint8    uiLastBrightness = 0;
 static uint8    uiLastLDRValue = 0;
+static uint8    uiLastOnValue = 0;
 
 static LedObject ledObjects[LED_COUNT];
 
@@ -26,6 +27,7 @@ void LedUpdate(){
     if(LedIsDirty()){
         uiLastBrightness = settings.c_brightness;
         uiLastLDRValue = LDRgetBrightness();
+        uiLastOnValue = settings.u_DISPLAYON;
 
         for(uint8 ledNum = 0; ledNum < LED_COUNT; ledNum++){
             uint16_t generalBrightness  = (uint16_t)pwm_table[settings.c_brightness];            
@@ -73,6 +75,9 @@ void LedUpdate(){
             }
             
             RgbColor color = RgbColor(red, green, blue);
+            if(!settings.u_DISPLAYON){
+                color = RgbColor(0, 0, 0);
+            }
             neoPixelStrip.SetPixelColor(ledNum, color);
         }    
         neoPixelStrip.Show();
@@ -187,6 +192,10 @@ uint8 LedIsDirty(){
     if(uiDirty){
         return uiDirty;
     }else{
+        if(uiLastOnValue != settings.u_DISPLAYON){
+            return 1;
+        }
+
         if(uiLastBrightness != settings.c_brightness){
             return 1;
         };

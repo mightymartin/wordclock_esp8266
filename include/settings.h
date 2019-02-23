@@ -8,7 +8,7 @@
 #define EEPROM_START_ADDRESS    0
 #define EEPROM_SIZE             4095
 
-#define FW_VERSION              "0.8"
+#define FW_VERSION              "0.9"
 #define CONF_WEBSERVER_PORT     80
 #define CONF_SERIAL_BAUD        115200
 #define MAX_FADE_STEPS	        32
@@ -30,6 +30,8 @@
 #define U_TEMP_TAG                  "UTEMP" 
 #define U_MDNS_TAG                  "UMDNS" 
 #define U_LOGG_TAG                  "ULOGG" 
+#define U_ONOFF_TAG                 "UONOFF" 
+
 #define N_NTPINTERVAL_TAG           "NNTPI" 
 #define N_NTPSERVER_TAG             "NNTPS"
 #define N_HOSTNAME_TAG              "NHOST"
@@ -66,6 +68,7 @@ struct Settings_t{
     uint8     u_TEMP                  ;
     uint8     u_MDNS                  ;
     uint8     u_LOGGING               ;
+    uint8     u_DISPLAYON             ;
 
     //network
     uint32_t    n_ntpinterval           ;

@@ -16,6 +16,8 @@ void WebsiteInit(ESP8266WebServer *server){
     _server->on(REQ_INFO, WebsiteInfoPage);
     _server->on(REQ_FACTORY_RESET, WebsiteFactoryResetPage);  
     _server->on(REQ_OTA_SELECT, WebsiteFirmwareUpdate);  
+    _server->on(REQ_CONSOLE, WebsiteConsolePage);  
+    _server->on(REQ_LOGDATA, WebsiteLogData);  
 }
 
 void WebsideApplyArgs(){
@@ -28,18 +30,18 @@ void WebsiteAction(){
     if (_server->hasArg("ACTION") == true){
         String message = "";
         uint8 reqReboot = 0;
-        if(_server->arg("ACTION").equalsIgnoreCase("SAVE")){
+        if(_server->arg("ACTION").equalsIgnoreCase("ONOFF")){
+            SettingsSetValue(U_ONOFF_TAG,String(!settings.u_DISPLAYON));
+        } else if(_server->arg("ACTION").equalsIgnoreCase("SAVE")){
             WebsideApplyArgs();
-            SettingsWrite();
-            message = "Settings saved";
+            SettingsWrite();            
         } else if(_server->arg("ACTION").equalsIgnoreCase("SAVER")){
             WebsideApplyArgs();
             SettingsWrite();            
             reqReboot = 1;
             message = "Settings saved -> Reboot";
         } else if(_server->arg("ACTION").equalsIgnoreCase("APPLY")){
-            WebsideApplyArgs();
-            message = "Settings applied";
+            WebsideApplyArgs();            
         } else if(_server->arg("ACTION").equalsIgnoreCase("REBOOT")){            
             reqReboot = 1;
             message = "Manual Reboot";
@@ -69,6 +71,83 @@ void WebsiteAction(){
             SettingsSoftRestart();           
         }
     }
+}
+
+void WebsiteLogData(){
+    String page = String(TimeSeconds());
+    _server->sendHeader("Content-Length", String(page.length()));
+    _server->send(200, "text/html", page); 
+}
+
+void WebsiteStartPage(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN);  
+    page.replace("{pcat}" , F("Home"));
+
+    if(settings.u_DISPLAYON){
+        page += FPSTR(SITE_HREF_EXT);  
+        page.replace("{tit}", F("ON"));
+        page.replace("{id}",  F("ACTION"));
+        page.replace("{val}", F("ONOFF"));
+        page.replace("{col}", F("bgrn"));
+        page.replace("{dest}", REQ_START);
+    }else{
+        page += FPSTR(SITE_HREF_EXT);  
+        page.replace("{tit}", F("OFF"));
+        page.replace("{id}",  F("ACTION"));
+        page.replace("{val}", F("ONOFF"));
+        page.replace("{col}", F("bred"));
+        page.replace("{dest}", REQ_START);
+    }
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Modes"));
+    page.replace("{dest}", REQ_MODES);
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Color Settings"));
+    page.replace("{dest}", REQ_CONF_COLOR);
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Display Settings"));
+    page.replace("{dest}", REQ_CONF_DRAW);
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Infos"));
+    page.replace("{dest}", REQ_INFO);
+    
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Console"));
+    page.replace("{dest}", REQ_CONSOLE);
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Config"));
+    page.replace("{dest}", REQ_CONFIG);
+
+    page += FPSTR(SITE_END); 
+    
+    WebsiteSend(page);    
+}
+
+void WebsiteConsolePage(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN_FULL); 
+    page.replace("{phead}", "Console");    
+
+    page += FPSTR(SITE_CONSOLE);
+    page.replace("{dest}", REQ_LOGDATA);
+    
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Back"));
+    page.replace("{dest}", REQ_START);
+
+    page += FPSTR(SITE_END_FULL); 
+
+    WebsiteSend(page);  
 }
 
 void WebsiteFirmwareUpdate(){
@@ -126,38 +205,6 @@ void WebsiteFactoryResetPage(){
     WebsiteSend(page);  
 }
 
-void WebsiteStartPage(){
-    WebsiteAction();
-
-    String page = FPSTR(SITE_HEAD);    
-    page += FPSTR(SITE_BGN);  
-    page.replace("{pcat}" , F("Home"));
-
-    page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Modes"));
-    page.replace("{dest}", REQ_MODES);
-
-    page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Color Settings"));
-    page.replace("{dest}", REQ_CONF_COLOR);
-
-    page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Display Settings"));
-    page.replace("{dest}", REQ_CONF_DRAW);
-
-    page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Infos"));
-    page.replace("{dest}", REQ_INFO);
-
-    page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Config"));
-    page.replace("{dest}", REQ_CONFIG);
-
-    page += FPSTR(SITE_END); 
-    
-    WebsiteSend(page);    
-}
-
 void WebsiteInfoPage(){
     WebsiteAction();
 
@@ -166,6 +213,13 @@ void WebsiteInfoPage(){
     page.replace("{pcat}" , F("Infos"));
 
     page += FPSTR(SITE_DL_BGN);  
+
+    page += FPSTR(SITE_DL_LINE);  
+    page.replace("{tit}", F("Firmware Version"));
+    page.replace("{val}", String(settings.version) );
+
+    page += F("<br/>"); 
+    page += F("<br/>"); 
 
     page += FPSTR(SITE_DL_LINE);  
     page.replace("{tit}", F("Chip ID"));
@@ -677,7 +731,7 @@ void WebsiteLDRConfigPage(){
 
     String page = FPSTR(SITE_HEAD);    
     page += FPSTR(SITE_BGN);  
-    page.replace("{pcat}" , F("LDR Config"));
+    page.replace("{pcat}" , "LDR Config (av: " + String(LDRgetValue()) + ")");
     
     page += FPSTR(SITE_FORM_BGN);  
     page.replace("{dest}", REQ_CONF_LDR);

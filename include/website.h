@@ -25,6 +25,8 @@
 #define REQ_CONF_MISC       "/cmi"
 #define REQ_CONF_LDR        "/cld"
 
+#define REQ_LOGDATA         "/log"
+#define REQ_CONSOLE         "/con"
 #define REQ_OTA_SELECT      "/otasel"
 
 
@@ -52,7 +54,7 @@ const char SITE_HEAD[]          PROGMEM = QUOTE(    <html>
                                                                 }
                                                                 textarea{
                                                                     resize:none;
-                                                                    width:98%;
+                                                                    width:100%;
                                                                     height:318px;
                                                                     padding:5px;
                                                                     overflow:auto;
@@ -120,6 +122,15 @@ const char SITE_END[]           PROGMEM    = QUOTE(             </fieldset>
                                                         </body>
                                                     </html>);
 
+const char SITE_BGN_FULL[]      PROGMEM    =  QUOTE(    <body>
+                                                            <div style="text-align:left;display:inline-block;min-width:340px;">
+                                                                <div style="text-align:center;">                                                            
+                                                                    <h2>{phead}</h2>
+                                                                </div>);
+const char SITE_END_FULL[]      PROGMEM    = QUOTE(         </div>
+                                                        </body>
+                                                    </html>);
+
 const char SITE_FORM_BGN[]      PROGMEM    = QUOTE( <form method="post" action="{dest}">);
 const char SITE_FORM_END[]      PROGMEM    = QUOTE( </form>);
 
@@ -179,15 +190,24 @@ const char SITE_RELOAD_WAIT[]   PROGMEM    = QUOTE( <div id="RLCOUNT"></div>
                                                         tTick();                                                                                                                 
                                                     </script>);
 
-const char SITE_CONSOLE[]       PROGMEM    = QUOTE( <div id="CONSOLE"></div>
-                                                    <script language="JavaScript" type="text/javascript">
-                                                        function startWS(){
-                                                            Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
-                                                            Socket.onmessage = function(evt){
-                                                                document.getElementById("CONSOLE").innerHTML += evt.data + "<br/>";
-                                                            }
-                                                        }                                                                                                             
-                                                        startWS();                                                                                                                 
+const char SITE_CONSOLE[]       PROGMEM    = QUOTE( <textarea readonly="" id="CONSOLE" name="CONSOLE" cols="340" wrap="off"></textarea>
+                                                    <script language="JavaScript" type="text/javascript">                                                        
+                                                        function tTick(){	                                                                                                                    
+                                                            var ta = document.getElementById('CONSOLE');
+                                                            if(ta){
+                                                                var x=new XMLHttpRequest();
+                                                                x.onreadystatechange=function(){
+                                                                    if(x.readyState==4&&x.status==200){
+                                                                        ta.value+=x.responseText+"\n";
+                                                                        ta.scrollTop=99999;
+                                                                    }
+                                                                };
+                                                                x.open('GET','{dest}',true);
+                                                                x.send();
+                                                            }                                                            
+                                                            setTimeout(tTick,1000);
+                                                        }                                                        
+                                                        tTick();                                                                                                                 
                                                     </script>);                                                    
 
 
@@ -207,11 +227,9 @@ extern void WebsiteMQTTConfigPage();
 extern void WebsiteLDRConfigPage();
 extern void WebsiteMiscConfigPage();
 extern void WebsiteInfoPage();
+extern void WebsiteConsolePage();
 
-extern void WebsiteRebootPage();
-extern void WebsiteResetPage();
-
-extern void WebsiteActionPage();
+extern void WebsiteLogData();
 
 extern void WebsiteSend(String page);
 

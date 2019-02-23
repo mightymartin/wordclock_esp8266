@@ -20,17 +20,15 @@ void    SettingsInit(){
 
 void SettingsSetDefaults(){
     strcpy(settings.version,FW_VERSION); 
-
     settings.u_LDR                   = 1;
     settings.u_MQTT                  = 0;
     settings.u_TEMP                  = 1;
     settings.u_MDNS                  = 1;
     settings.u_LOGGING               = 2;
-    settings.n_ntpinterval           = 60000;
-    
+    settings.u_DISPLAYON             = 1;
+    settings.n_ntpinterval           = 60000;    
     strcpy(settings.n_ntpserver,"de.pool.ntp.org");    
     strcpy(settings.n_hostname ,"Wordclock");
-
     settings.m_port                  = 1883;    
     settings.c_mode                  = 2;
     settings.c_hue_rotate_rb         = 1;
@@ -116,6 +114,8 @@ void    SettingsSetValue(String key, String value){
         settings.u_MDNS = (uint8)value.toInt();
     }else if(key.equals(U_LOGG_TAG)){
         settings.u_LOGGING = (uint8)value.toInt();
+    }else if(key.equals(U_ONOFF_TAG)){
+        settings.u_DISPLAYON = (uint8)value.toInt();
     }else if(key.equals(N_NTPINTERVAL_TAG)){    
         settings.n_ntpinterval = (uint32)value.toInt();
     }else if(key.equals(N_NTPSERVER_TAG)){    

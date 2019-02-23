@@ -8,22 +8,10 @@
 
 #include "settings.h"
 
-inline void LogDebug(String msg){
-    if(settings.u_LOGGING >= LOGLEVEL_DBG){
-        Serial.println(msg); 
-    }
-}
+extern void LogDebug(String msg);
 
-inline void LogInfo(String msg){
-    if(settings.u_LOGGING >= LOGLEVEL_INF){
-        Serial.println(msg); 
-    }
-}
+extern void LogInfo(String msg);
 
-inline void LogError(String msg){
-    if(settings.u_LOGGING >= LOGLEVEL_ERR){
-        Serial.println(msg); 
-    }
-}
+extern void LogError(String msg);
 
 #endif
