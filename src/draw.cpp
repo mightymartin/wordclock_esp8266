@@ -11,7 +11,7 @@ static uint8 drawClockLastHour          = 0;
 
 static uint8 drawLastTemp               = 0;
 
-static Ticker DrawTimer(DrawUpdate, 1000);  //TODO Fraktal for faster draw?
+static Ticker DrawTimer(DrawUpdate, 1000);  
 
 void DrawInit(){
     DrawTimer.start();
