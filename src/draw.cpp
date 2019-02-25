@@ -25,10 +25,7 @@ void DrawTick(){
 void DrawUpdate(){
     if(settings.d_mode == DRAW_MODE_CLOCK){
         if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes || settings.d_mode != drawLastMode){   
-            WebLogDebug("TIME: " + String(TimeHours()) + ":" + String(TimeMinutes()));  
-            
-            WebLogDebug(SettingsToJson());
-
+            WebLogDebug("TIME: " + String(TimeHours()) + ":" + String(TimeMinutes()));              
             DrawUpdateClock(TimeHours(), TimeMinutes());
         }
     } else if(settings.d_mode == DRAW_MODE_SECONDS){

@@ -10,7 +10,7 @@
 #define EEPROM_START_ADDRESS    0
 #define EEPROM_SIZE             4095
 
-#define FW_VERSION              "0.11"
+#define FW_VERSION              "0.12"
 #define CONF_WEBSERVER_PORT     80
 #define CONF_WEBSOCKET_PORT     81
 #define CONF_SERIAL_BAUD        115200
@@ -47,7 +47,6 @@
 #define M_USER_TAG                  "MUSER"
 #define M_PASS_TAG                  "MPASS" 
 #define M_TOPIC_TAG                 "MTOP"
-#define M_FULLTOPIC_TAG             "MFTOP"
 #define C_MODE_TAG                  "CMODE"
 #define C_HUE_ROTATE_RB_TAG         "CROT"
 #define C_HUE_ROTATE_DURATION_TAG   "CROTD"
@@ -88,7 +87,6 @@ struct Settings_t{
     char        m_user[32]              ;
     char        m_pass[32]              ;
     char        m_topic[32]             ;
-    char        m_fulltopic[32]         ;
 
     //Color
     uint8       c_mode                  ;

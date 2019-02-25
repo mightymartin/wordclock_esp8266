@@ -11,6 +11,7 @@
 #include "ldr.h"
 #include "settings.h"
 #include "website.h"
+#include "mqtt.h"
 
 
 //##############################
@@ -70,6 +71,12 @@ void setup() {
   WebLogInfo("Start Webserver");
   server.begin();
 
+  if(settings.u_MQTT){
+    //### Start MQTT
+    WebLogInfo("Start MQTT");
+    MQTTInit();
+  }
+
   //### Start mDNS
   if(settings.u_MDNS == 1){
       WebLogInfo("Start mDNS");
@@ -92,12 +99,18 @@ void loop() {
   ColorTick();
   LedTick();
   DrawTick();
-  TimeTick();
-  LDRTick();
-  SettingsTick();
-
-  server.handleClient();  
-
-  SettingsTick();
+  TimeTick();  
+  
+  if(settings.u_LDR){
+    LDRTick();
+  }
+  
   WebLogTick();
+  
+  if(settings.u_MQTT){
+    MQTTTick(); 
+  }
+
+  SettingsTick();
+  server.handleClient();  
 }

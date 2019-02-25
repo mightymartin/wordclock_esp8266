@@ -17,15 +17,15 @@ Features:
 - OTA
 - mdns
 - NTP time client
-- MQTT PUB / SUB (wip)
+- MQTT Sub: ON/OFF && BRIGHTNESS && COLORMODE && DISPLAYMODE (Non persistent)
+- MQTT Pub: current config as JSON to broker
 - LDR driven brightness
 - different color modes 
 
 
 Todos befor V1.0:
 - tempsensor implementation
-- MQTT Sub: ON/OFF && BRIGHTNESS && COLORMODE && DISPLAYMODE (Non persistent)
-- MQTT Pub: current config as JSON to broker
+
 
 
 

@@ -27,9 +27,12 @@ void SettingsSetDefaults(){
     settings.u_LOGGING               = 2;
     settings.u_DISPLAYON             = 1;
     settings.n_ntpinterval           = 60000;    
-    strcpy(settings.n_ntpserver,"de.pool.ntp.org");    
-    strcpy(settings.n_hostname ,"Wordclock");
+    strcpy(settings.n_ntpserver,    "de.pool.ntp.org");    
+    strcpy(settings.n_hostname ,    "wordclock");
     settings.m_port                  = 1883;    
+    strcpy(settings.m_host,         "192.168.33.253");    
+    strcpy(settings.m_client_id,    String("wordclock"+String(ESP.getChipId())).c_str() );    
+    strcpy(settings.m_topic,        String("wordclock"+String(ESP.getChipId())).c_str() );        
     settings.c_mode                  = 2;
     settings.c_hue_rotate_rb         = 1;
     settings.c_hue_rotate_duration   = 300000;
@@ -134,8 +137,6 @@ void    SettingsSetValue(String key, String value){
         strcpy(settings.m_pass, value.c_str());
     }else if(key.equals(M_TOPIC_TAG)){
         strcpy(settings.m_topic, value.c_str());
-    }else if(key.equals(M_FULLTOPIC_TAG)){
-        strcpy(settings.m_fulltopic, value.c_str());
     }else if(key.equals(C_MODE_TAG)){    
         settings.c_mode = (uint8)value.toInt();
     }else if(key.equals(C_HUE_ROTATE_RB_TAG)){    
@@ -169,7 +170,6 @@ void    SettingsSetValue(String key, String value){
     }        
 }
 
-//TODO move settingstojson to mqtt part
 const char PROP_STR[]    PROGMEM    = QUOTE( "{key}":"{val}", );
 const char PROP_INT[]    PROGMEM    = QUOTE( "{key}":{val}, );
 

@@ -695,12 +695,6 @@ void WebsiteMQTTConfigPage(){
     page.replace("{val}", String(settings.m_topic));
     page.replace("{len}", F("32"));
 
-    page += FPSTR(SITE_INP_T);  
-    page.replace("{tit}", F("Fulltopic"));
-    page.replace("{id}",  F(M_FULLTOPIC_TAG)); 
-    page.replace("{val}", String(settings.m_fulltopic));
-    page.replace("{len}", F("32"));
-
     page += FPSTR(SITE_BUTTON);  
     page.replace("{tit}", F("Save & Restart"));
     page.replace("{id}",  F("ACTION"));
