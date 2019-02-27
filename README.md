@@ -16,9 +16,10 @@
 - display temperature
 - 8 different color modes with HUE rotate
 - wifimanger
-- Webserver http://deviceip:80
+- Webserver http://deviceip:80 ( inspired by Tasmota and tzapu/wifimanager )
 - OTA
 - mdns
+- Websocket Webconsole
 - NTP time client
 - MQTT Sub: ON/OFF && BRIGHTNESS && COLORMODE && DISPLAYMODE (Non persistent)
 - MQTT Pub: current config as JSON to broker
