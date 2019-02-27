@@ -1,14 +1,14 @@
-##Wordclock based on an ESP8266 / WS2812
+# Wordclock based on an ESP8266 / WS2812
 ![front_an](img/front_an.jpg)
 
-###Hardware:
+## Hardware:
 - LDR with voltagedevider on A0 
 - WS2866 via levelshifter on RXD0 
 
 ![wiring1](img/schematics.JPG)
-![wiring2](img/drahtverhau.jpg)
 
-###Features:
+
+## Features:
 - defineable hardware layout (leds.h)
 - word fading
 - display hour and minutes
@@ -25,12 +25,13 @@
 - LDR driven brightness
 
 
-##Todos befor V1.0:
-###Addons
+## Todos befor V1.0:
+### Addons
 - tempsensor implementation
-###Bugfixing
+### Bugfixing
+- TBD
 
-##Images
+## Images
 ![front_blank](img/front_blank.jpg)
 ![front](img/front.jpg)
 ![menu1](img/menu1.JPG)
@@ -39,8 +40,7 @@
 ![menu3](img/menu3.JPG)
 ![menu4](img/menu4.JPG)
 ![menu5](img/menu5.JPG)
-
-
+![wiring2](img/drahtverhau.jpg)
 
 
 
