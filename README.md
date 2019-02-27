@@ -5,7 +5,7 @@
 - LDR with voltagedevider on A0 
 - WS2866 via levelshifter on RXD0 
 
-![wiring1](img/schematics.jpg)
+![wiring1](img/schematics.JPG)
 ![wiring2](img/drahtverhau.jpg)
 
 ###Features:
@@ -33,12 +33,12 @@
 ##Images
 ![front_blank](img/front_blank.jpg)
 ![front](img/front.jpg)
-![menu1](img/menu1.jpg)
-![menu21](img/menu2_2.jpg)
-![menu22](img/menu2_2.jpg)
-![menu3](img/menu3.jpg)
-![menu4](img/menu4.jpg)
-![menu5](img/menu5.jpg)
+![menu1](img/menu1.JPG)
+![menu21](img/menu2_2.JPG)
+![menu22](img/menu2_2.JPG)
+![menu3](img/menu3.JPG)
+![menu4](img/menu4.JPG)
+![menu5](img/menu5.JPG)
 
 
 
