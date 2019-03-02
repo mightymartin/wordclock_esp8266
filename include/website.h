@@ -7,6 +7,7 @@
 #include "timeNTP.h"
 #include "color.h"
 #include "draw.h"
+#include "mqtt.h"
 
 #define REQ_START           "/"
 #define REQ_MODES           "/mod"
@@ -16,8 +17,7 @@
 #define REQ_OTA             "/ota"
 
 #define REQ_CONFIG          "/cnf"
-#define REQ_CONF_DRAW       "/cdr"
-#define REQ_CONF_COLOR      "/cco"
+#define REQ_CONF_MODES      "/cmo"
 #define REQ_CONF_NETWORK    "/cne"
 #define REQ_CONF_MQTT       "/cmq"
 #define REQ_CONF_MISC       "/cmi"
@@ -206,8 +206,7 @@ extern void WebsiteInit(ESP8266WebServer *server);
 extern void WebsiteStartPage();
 
 extern void WebsiteModesPage ();
-extern void WebsiteDrawConfPage ();
-extern void WebsiteColorConfPage();
+extern void WebsiteModesConfPage ();
 
 extern void WebsiteFirmwareUpdate();
 extern void WebsiteFactoryResetPage();

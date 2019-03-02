@@ -12,10 +12,13 @@
 #define MQTT_CMD_TOPIC      "/CMD/+"
 #define MQTT_STATE_TOPIC    "/STATE"
 
+extern String cmdTopic, stateTopic;
+
 extern void MQTTUpdate();
 extern void MQTTSubCallback(char* topic, byte* payload, unsigned int length);
 extern void MQTTPublish();
 extern void MQTTInit();
 extern void MQTTTick();
+extern String MQTTStatus();
 
 #endif
