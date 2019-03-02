@@ -11,8 +11,7 @@ void WebsiteInit(ESP8266WebServer *server){
     _server->on(REQ_CONF_LDR, WebsiteLDRConfigPage);  
     _server->on(REQ_CONF_MISC, WebsiteMiscConfigPage);    
     _server->on(REQ_MODES, WebsiteModesPage);    
-    _server->on(REQ_CONF_COLOR, WebsiteColorConfPage);  
-    _server->on(REQ_CONF_DRAW, WebsiteDrawConfPage);
+    _server->on(REQ_CONF_MODES, WebsiteModesConfPage);      
     _server->on(REQ_INFO, WebsiteInfoPage);
     _server->on(REQ_FACTORY_RESET, WebsiteFactoryResetPage);  
     _server->on(REQ_OTA_SELECT, WebsiteFirmwareUpdate);  
@@ -100,12 +99,8 @@ void WebsiteStartPage(){
     page.replace("{dest}", REQ_MODES);
 
     page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Color Settings"));
-    page.replace("{dest}", REQ_CONF_COLOR);
-
-    page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Display Settings"));
-    page.replace("{dest}", REQ_CONF_DRAW);
+    page.replace("{tit}", F("Modes Settings"));
+    page.replace("{dest}", REQ_CONF_MODES);
 
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Infos"));
@@ -235,6 +230,23 @@ void WebsiteInfoPage(){
     page.replace("{tit}", F("Free Memory"));
     page.replace("{val}", String(ESP.getFreeHeap() / 1024)+F("kB") );
 
+    if(settings.u_MQTT){
+        page += F("<br/>");  
+    
+        page += FPSTR(SITE_DL_LINE);  
+        page.replace("{tit}", F("MQTT Status"));
+        page.replace("{val}", MQTTStatus()  );
+
+        page += FPSTR(SITE_DL_LINE);  
+        page.replace("{tit}", F("MQTT state topic"));
+        page.replace("{val}", stateTopic );
+
+        page += FPSTR(SITE_DL_LINE);  
+        page.replace("{tit}", F("MQTT cmd topic"));
+        page.replace("{val}", cmdTopic );    
+    }
+    
+
     page += F("<br/>");  
 
     page += FPSTR(SITE_DL_LINE);  
@@ -296,7 +308,7 @@ void WebsiteModesPage(){
     page.replace("{dest}", REQ_MODES);
 
     page += FPSTR(SITE_INP_CBX_BGN);  
-    page.replace("{tit}", F("Mode"));
+    page.replace("{tit}", F("Display Mode"));
     page.replace("{id}",  F(D_MODE_TAG)); 
     page.replace("{val}",  String(settings.d_mode));     
     page += FPSTR(SITE_INP_CBX_OPT);  
@@ -372,19 +384,19 @@ void WebsiteModesPage(){
     WebsiteSend(page); 
 }
 
-void WebsiteDrawConfPage(){
+void WebsiteModesConfPage(){
     WebsiteAction();
 
     String page = FPSTR(SITE_HEAD);    
     page += FPSTR(SITE_BGN);  
-    page.replace("{pcat}" , F("Display Settings"));
+    page.replace("{pcat}" , F("Modes Settings"));
     
     page += FPSTR(SITE_FORM_BGN);  
-    page.replace("{dest}", REQ_CONF_DRAW);
+    page.replace("{dest}", REQ_CONF_MODES);
 
     if(settings.d_mode == DRAW_MODE_CLOCK){
         page += FPSTR(SITE_INP_CBX_BGN);  
-        page.replace("{tit}", F("Region"));
+        page.replace("{tit}", F("Clock - Region"));
         page.replace("{id}",  F(D_CLK_REGION_TAG)); 
         page.replace("{val}",  String(settings.d_clk_region));     
         page += FPSTR(SITE_INP_CBX_OPT);  
@@ -402,7 +414,7 @@ void WebsiteDrawConfPage(){
         page += FPSTR(SITE_INP_CBX_END); 
 
         page += FPSTR(SITE_INP_CBX_BGN);  
-        page.replace("{tit}", F("IT IS mode"));
+        page.replace("{tit}", F("Clock - IT IS mode"));
         page.replace("{id}",  F(D_CLK_ITIS_MODE_TAG)); 
         page.replace("{val}",  String(settings.d_clk_itis_mode)); 
         page += FPSTR(SITE_INP_CBX_OPT);  
@@ -420,7 +432,7 @@ void WebsiteDrawConfPage(){
         page += FPSTR(SITE_INP_CBX_END); 
 
         page += FPSTR(SITE_INP_CBX_BGN);  
-        page.replace("{tit}", F("Pixel fading"));
+        page.replace("{tit}", F("Clock - Pixel fading"));
         page.replace("{id}",  F(D_CLK_FADE_TAG)); 
         page.replace("{val}",  String(settings.d_clk_fade)); 
         page += FPSTR(SITE_INP_CBX_OPT);  
@@ -432,46 +444,13 @@ void WebsiteDrawConfPage(){
         page.replace("{oval}", F("0"));
         page.replace("{osel}", (settings.d_clk_fade == 0) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_END); 
-    }else{
-        page += "<b>nothing to do</b>";
+
+        page += F("<br/>");  
     }
-
-    page += FPSTR(SITE_BUTTON);  
-    page.replace("{tit}", F("Apply"));
-    page.replace("{id}",  F("ACTION"));
-    page.replace("{val}", F("APPLY"));
-    page.replace("{col}", F("bgrn"));
-
-    page += FPSTR(SITE_BUTTON);  
-    page.replace("{tit}", F("Save & Apply"));
-    page.replace("{id}",  F("ACTION"));
-    page.replace("{val}", F("SAVE"));
-    page.replace("{col}", F("bred"));
-
-    page += FPSTR(SITE_FORM_END); 
-
-    page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Back"));
-    page.replace("{dest}", REQ_START);
-
-    page += FPSTR(SITE_END); 
-     
-    WebsiteSend(page); 
-}
-
-void WebsiteColorConfPage(){
-    WebsiteAction();
-
-    String page = FPSTR(SITE_HEAD);    
-    page += FPSTR(SITE_BGN);  
-    page.replace("{pcat}" , F("Color Settings"));
-    
-    page += FPSTR(SITE_FORM_BGN);  
-    page.replace("{dest}", REQ_CONF_COLOR);
 
     if( settings.c_mode != COLOR_MODE_COLOR_CHANGE && settings.c_mode != COLOR_MODE_PLAIN ){
         page += FPSTR(SITE_INP_CBX_BGN);  
-        page.replace("{tit}", F("Color Rotate"));
+        page.replace("{tit}", F("Color - Rotate"));
         page.replace("{id}",  F(C_HUE_ROTATE_RB_TAG)); 
         page.replace("{val}",  String(settings.c_hue_rotate_rb));
         page += FPSTR(SITE_INP_CBX_OPT);  
@@ -487,7 +466,7 @@ void WebsiteColorConfPage(){
 
     if( settings.c_mode == COLOR_MODE_COLOR_CHANGE || (settings.c_mode != COLOR_MODE_COLOR_CHANGE && settings.c_mode != COLOR_MODE_PLAIN && settings.c_hue_rotate_rb == 1) ){
         page += FPSTR(SITE_INP_N);  
-        page.replace("{tit}", F("Rotate Duration (s)"));
+        page.replace("{tit}", F("Color - Rotate Duration (s)"));
         page.replace("{id}",  F(C_HUE_ROTATE_DURATION_TAG)); 
         page.replace("{val}", String(settings.c_hue_rotate_duration));
         page.replace("{min}", F("30000"));
@@ -497,7 +476,7 @@ void WebsiteColorConfPage(){
 
     if( settings.c_mode == COLOR_MODE_PLAIN){
         page += FPSTR(SITE_INP_NR);  
-        page.replace("{tit}", F("Red Color"));
+        page.replace("{tit}", F("Color - Red"));
         page.replace("{id}",  F(C_PLAIN_RED_TAG)); 
         page.replace("{val}", String(settings.c_plain_red));
         page.replace("{min}", F("0"));
@@ -505,7 +484,7 @@ void WebsiteColorConfPage(){
         page.replace("{step}", F("1"));
 
         page += FPSTR(SITE_INP_NR);  
-        page.replace("{tit}", F("Green Color"));
+        page.replace("{tit}", F("Color - Green"));
         page.replace("{id}",  F(C_PLAIN_GREEN_TAG)); 
         page.replace("{val}", String(settings.c_plain_green));
         page.replace("{min}", F("0"));
@@ -513,13 +492,23 @@ void WebsiteColorConfPage(){
         page.replace("{step}", F("1"));
 
         page += FPSTR(SITE_INP_NR);  
-        page.replace("{tit}", F("Blue Color"));
+        page.replace("{tit}", F("Color - Blue"));
         page.replace("{id}",  F(C_PLAIN_BLUE_TAG)); 
         page.replace("{val}", String(settings.c_plain_blue));
         page.replace("{min}", F("0"));
         page.replace("{max}", F("255"));
         page.replace("{step}", F("1"));
     }
+
+    page += F("<br/>");  
+
+    page += FPSTR(SITE_INP_NR);  
+    page.replace("{tit}", F("Overall Brightness"));
+    page.replace("{id}",  F(C_BRIGHTNESS_TAG)); 
+    page.replace("{val}", String(settings.c_brightness));
+    page.replace("{min}", F("0"));
+    page.replace("{max}", F("31"));
+    page.replace("{step}", F("1"));
 
     page += FPSTR(SITE_BUTTON);  
     page.replace("{tit}", F("Apply"));
@@ -690,7 +679,7 @@ void WebsiteMQTTConfigPage(){
     page.replace("{len}", F("32"));
     
     page += FPSTR(SITE_INP_T);  
-    page.replace("{tit}", F("Topic"));
+    page.replace("{tit}", F("Topic unique part"));
     page.replace("{id}",  F(M_TOPIC_TAG)); 
     page.replace("{val}", String(settings.m_topic));
     page.replace("{len}", F("32"));
@@ -726,8 +715,8 @@ void WebsiteLDRConfigPage(){
     page.replace("{tit}", F("min. PWM Level"));
     page.replace("{id}",  F(L_MIN_BRIGHT_TAG)); 
     page.replace("{val}", String(settings.l_min_bright));
-    page.replace("{min}", F("1"));
-    page.replace("{max}", F("32"));
+    page.replace("{min}", F("0"));
+    page.replace("{max}", F("31"));
     page.replace("{step}", F("1"));
 
     for(uint8 i=0; i < sizeof(settings.l_treshold) / 2 ; i++){   //geteilt durch 2 wegen uint16
@@ -736,8 +725,8 @@ void WebsiteLDRConfigPage(){
         page.replace("{id}",  L_TRESHOLD_TAG + String(i)); 
         page.replace("{val}", String(settings.l_treshold[i]));        
     }
-    page.replace("{min}", F("1"));
-    page.replace("{max}", F("1024"));
+    page.replace("{min}", F("0"));
+    page.replace("{max}", F("1023"));
     page.replace("{step}", F("1"));
 
     page += FPSTR(SITE_BUTTON);  

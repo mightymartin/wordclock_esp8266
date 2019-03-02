@@ -29,6 +29,13 @@ boolean MQTTReconnect(){
     return mqttClient.connected();
 }
 
+String MQTTStatus(){    
+    if(mqttClient.connected()){
+        return F("Connected");
+    }else{
+        return "not Connected, rc=" + String(mqttClient.state());
+    }    
+}
 
 void MQTTTick(){  
     MQTTTimer.update();
