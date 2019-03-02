@@ -25,12 +25,9 @@
 - MQTT Pub: current config as JSON to broker
 - LDR driven brightness
 
-
-## Todos befor V1.0:
-### Addons
+### planned improvements
 - tempsensor implementation
-### Bugfixing
-- TBD
+
 
 ## Images
 ![front_blank](img/front_blank.jpg)
