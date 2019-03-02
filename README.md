@@ -3,7 +3,7 @@
 
 ## Hardware:
 - LDR with voltagedevider on A0 
-- WS2866 via levelshifter on RXD0 
+- WS2812 via levelshifter on RXD0 
 
 ![wiring1](img/schematics.JPG)
 
@@ -33,7 +33,7 @@
 ![front_blank](img/front_blank.jpg)
 ![front](img/front.jpg)
 ![menu1](img/menu1.JPG)
-![menu21](img/menu2_2.JPG)
+![menu21](img/menu2_1.JPG)
 ![menu22](img/menu2_2.JPG)
 ![menu3](img/menu3.JPG)
 ![menu4](img/menu4.JPG)
