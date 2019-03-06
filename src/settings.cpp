@@ -142,7 +142,7 @@ void    SettingsSetValue(String key, String value){
     }else if(key.equals(C_HUE_ROTATE_RB_TAG)){    
         settings.c_hue_rotate_rb = (uint8)value.toInt();
     }else if(key.equals(C_HUE_ROTATE_DURATION_TAG)){    
-        settings.c_hue_rotate_duration = (uint8)value.toInt();
+        settings.c_hue_rotate_duration = (uint32)value.toInt();
     }else if(key.equals(C_PLAIN_RED_TAG)){            
         settings.c_plain_red = (uint8)value.toInt();
     }else if(key.equals(C_PLAIN_GREEN_TAG)){    
