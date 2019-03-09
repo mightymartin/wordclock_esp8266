@@ -50,27 +50,28 @@ void MQTTTick(){
 
 
 void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
-    uint8   validCmd = 1;
+    uint8   validCmd = 0;
     String  command = String(strrchr(topic, '/')).substring(1);
-    char    value = (length > 0) ? payload[0] : '0'; //only first Char, numbers only!
 
-    if(
-        command.equalsIgnoreCase(U_ONOFF_TAG) ||
-        command.equalsIgnoreCase(C_BRIGHTNESS_TAG) ||
-        command.equalsIgnoreCase(C_MODE_TAG) ||
-        command.equalsIgnoreCase(D_MODE_TAG) 
+    payload[length] = '\0'; //terminate that nasty boy
+    String value = String((char*)payload);  
+    uint8_t intValue = (uint8)value.toInt();
+
+    if( (command.equalsIgnoreCase(U_ONOFF_TAG) && intValue <= 9 ) ||
+        (command.equalsIgnoreCase(C_BRIGHTNESS_TAG) && intValue <= 31) ||
+        (command.equalsIgnoreCase(C_MODE_TAG) && intValue <= 9 ) ||
+        (command.equalsIgnoreCase(D_MODE_TAG) && intValue <= 9 ) 
     ){
-        if(length > 0){
-            SettingsSetValue(command,String(value));
+        if(length > 0){            
+            SettingsSetValue(command,value);
+            validCmd = 1;
         }        
-    }else{    
-        validCmd = 0;
     }
 
     if(validCmd == 1){
         WebLogInfo(String(topic) + " = " +  value);        
     }else{
-        WebLogInfo("MQTT invalid Command " + command + " : " +  String((char*) payload) + ".");
+        WebLogInfo("MQTT invalid Command " + command + " : " +  value + ".");
     }
 }
 
