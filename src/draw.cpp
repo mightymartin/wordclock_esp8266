@@ -3,7 +3,7 @@
 
 
 //Worker Vars
-static uint8 drawLastMode               = 255;
+static uint8 lastSettingsChecksum       = 0;
 
 static uint8 drawClockLastSeconds       = 0;
 static uint8 drawClockLastMinutes       = 0;
@@ -23,26 +23,30 @@ void DrawTick(){
 }
 
 void DrawUpdate(){
+    uint8_t forceUpdate = 0;
+    if(lastSettingsChecksum != SettingsGetChecksum()){
+        forceUpdate = 1;
+        lastSettingsChecksum = SettingsGetChecksum();
+    }
+
     if(settings.d_mode == DRAW_MODE_CLOCK){
-        if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes || settings.d_mode != drawLastMode){   
+        if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes || forceUpdate){   
             WebLogDebug("TIME: " + String(TimeHours()) + ":" + String(TimeMinutes()));              
             DrawUpdateClock(TimeHours(), TimeMinutes());
         }
     } else if(settings.d_mode == DRAW_MODE_SECONDS){
-        if(TimeSeconds() != drawClockLastSeconds || settings.d_mode != drawLastMode){
+        if(TimeSeconds() != drawClockLastSeconds || forceUpdate){
             WebLogDebug("SEC: " + String(TimeSeconds()));
             DrawUpdateSeconds(TimeSeconds());
         }
     } else if(settings.d_mode == DRAW_MODE_TEMP){
-        if(21 != drawLastTemp || settings.d_mode != drawLastMode){            
+        if(21 != drawLastTemp || forceUpdate){            
             DrawUpdateTemp(21);
         }
     } else {
         //drawmode not valid set default:
         settings.d_mode = DRAW_MODE_CLOCK;
     }
-
-    drawLastMode = settings.d_mode;
 }
 
 //#################
