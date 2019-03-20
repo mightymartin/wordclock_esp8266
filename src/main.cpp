@@ -46,7 +46,7 @@ void setup() {
 
   wifi_station_set_hostname(settings.n_hostname);
   WiFi.hostname(settings.n_hostname);
-  
+
   WebLogInfo("Start Wifimanger");
   WiFiManager wifiManager;  
   wifiManager.setConnectTimeout(10);
@@ -114,5 +114,10 @@ void loop() {
   }
 
   SettingsTick();
+
   server.handleClient();  
+
+  if(settings.u_MDNS == 1){
+    MDNS.update();
+  }
 }
