@@ -28,7 +28,7 @@ void SettingsSetDefaults(){
     settings.u_DISPLAYON             = 1;
     settings.n_ntpinterval           = 60000;    
     strcpy(settings.n_ntpserver,    "de.pool.ntp.org");    
-    strcpy(settings.n_hostname ,    "wordclock");
+    strcpy(settings.n_hostname ,    String("wordclock"+String(ESP.getChipId())).c_str() );
     settings.m_port                  = 1883;    
     strcpy(settings.m_host,         "192.168.33.253");    
     strcpy(settings.m_client_id,    String("wordclock"+String(ESP.getChipId())).c_str() );    

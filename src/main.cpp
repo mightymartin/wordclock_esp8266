@@ -44,6 +44,9 @@ void setup() {
   DrawInit();
   LDRInit();
 
+  wifi_station_set_hostname(settings.n_hostname);
+  WiFi.hostname(settings.n_hostname);
+  
   WebLogInfo("Start Wifimanger");
   WiFiManager wifiManager;  
   wifiManager.setConnectTimeout(10);
@@ -51,9 +54,8 @@ void setup() {
   //wifiManager.setSaveConfigCallback(saveConfigCallback);
   if(settings.u_LOGGING >= LOGLEVEL_DBG){
     wifiManager.setDebugOutput(true);
-  }
-  String ssid = settings.n_hostname + String(ESP.getChipId());
-  wifiManager.autoConnect(ssid.c_str(), NULL);
+  }  
+  wifiManager.autoConnect(settings.n_hostname, NULL);
 
   //NTP Zeit
   WebLogInfo("Start Time init");
