@@ -263,7 +263,7 @@ void WebsiteInfoPage(){
     page.replace("{val}", ESP.getSdkVersion() );
     page += FPSTR(SITE_DL_LINE);  
     page.replace("{tit}", F("Time"));
-    page.replace("{val}", String(TimeformatedTime()) );
+    page.replace("{val}", String(TimeformatedDateTime()) );
     
     page += F("<br/>");  
 

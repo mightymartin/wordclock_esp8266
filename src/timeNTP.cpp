@@ -40,6 +40,10 @@ uint16 TimeYear(){
     return ntp.year();
 }
 
-char* TimeformatedTime(){
+char* TimeformatedDateTime(){
     return ntp.formattedTime("%d.%m.%Y %T");
+}
+
+char* TimeformatedTime(){
+    return ntp.formattedTime("%T");
 }

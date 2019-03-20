@@ -15,6 +15,7 @@ extern uint8    TimeDay();
 extern uint8    TimeMonth();
 extern uint16   TimeYear();
 
+extern char* TimeformatedDateTime();
 extern char* TimeformatedTime();
 
 #endif

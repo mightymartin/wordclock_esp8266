@@ -9,7 +9,7 @@ void WebLogInit(){
 void WebLogDebug(String msg){
     if(settings.u_LOGGING >= LOGLEVEL_DBG){
         Serial.println(msg); 
-        msg = TimeformatedTime() + String(" DBG ") + msg;
+        msg = TimeformatedDateTime() + String(" DBG ") + msg;
         webSocket.broadcastTXT(msg.c_str(),msg.length());
     }
 }
@@ -17,7 +17,7 @@ void WebLogDebug(String msg){
 void WebLogInfo(String msg){
     if(settings.u_LOGGING >= LOGLEVEL_INF){
         Serial.println(msg); 
-        msg = TimeformatedTime() + String(" INF ") + msg;
+        msg = TimeformatedDateTime() + String(" INF ") + msg;
         webSocket.broadcastTXT(msg.c_str(),msg.length());
     }
 }
@@ -25,7 +25,7 @@ void WebLogInfo(String msg){
 void WebLogError(String msg){
     if(settings.u_LOGGING >= LOGLEVEL_ERR){
         Serial.println(msg); 
-        msg = TimeformatedTime() + String(" ERR ") + msg;
+        msg = TimeformatedDateTime() + String(" ERR ") + msg;
         webSocket.broadcastTXT(msg.c_str(),msg.length());
     }
 }

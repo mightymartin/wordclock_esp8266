@@ -1,4 +1,5 @@
 #include "settings.h"
+#include "timeNTP.h"
 #include "logging.h"
 
 Settings_t settings;
@@ -211,7 +212,7 @@ String    SettingsToJson(){
 
     jsonDest += getPropStr(N_HOSTNAME_TAG,              String(settings.n_hostname));
     jsonDest += getPropStr(G_VERSION,                   String(settings.version));
-    jsonDest += getPropStr(G_TIME,                      "HH:MM:SS");
+    jsonDest += getPropStr(G_TIME,                      String(TimeformatedTime()));
 
     jsonDest.remove(jsonDest.length()-1);   
 
