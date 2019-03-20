@@ -3,7 +3,7 @@
 
 
 //Worker Vars
-static uint8 lastSettingsChecksum       = 0;
+static uint32 lastSettingsChecksum       = 0;
 
 static uint8 drawClockLastSeconds       = 0;
 static uint8 drawClockLastMinutes       = 0;
@@ -30,17 +30,17 @@ void DrawUpdate(){
     }
 
     if(settings.d_mode == DRAW_MODE_CLOCK){
-        if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes || forceUpdate){   
+        if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes || forceUpdate == 1){   
             WebLogDebug("TIME: " + String(TimeHours()) + ":" + String(TimeMinutes()));              
             DrawUpdateClock(TimeHours(), TimeMinutes());
         }
     } else if(settings.d_mode == DRAW_MODE_SECONDS){
-        if(TimeSeconds() != drawClockLastSeconds || forceUpdate){
+        if(TimeSeconds() != drawClockLastSeconds || forceUpdate == 1){
             WebLogDebug("SEC: " + String(TimeSeconds()));
             DrawUpdateSeconds(TimeSeconds());
         }
     } else if(settings.d_mode == DRAW_MODE_TEMP){
-        if(21 != drawLastTemp || forceUpdate){            
+        if(21 != drawLastTemp || forceUpdate == 1){            
             DrawUpdateTemp(21);
         }
     } else {
