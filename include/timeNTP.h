@@ -2,7 +2,9 @@
 #define TIMENTP_H_
 
 #include <WiFiUdp.h>
-#include <NTP.h>
+#include <TimeLib.h>
+#include <TimeZone.h>
+#include "NTPClient.h"
 
 
 extern void TimeInit();
@@ -15,7 +17,7 @@ extern uint8    TimeDay();
 extern uint8    TimeMonth();
 extern uint16   TimeYear();
 
-extern char* TimeformatedDateTime();
-extern char* TimeformatedTime();
+extern String TimeformatedDateTime();
+extern String TimeformatedTime();
 
 #endif

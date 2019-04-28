@@ -1,49 +1,65 @@
 #include "timeNTP.h"
 #include "settings.h"
 
-static WiFiUDP wifiUdp;
-static NTP ntp(wifiUdp);
+WiFiUDP ntpUDP;
+
+NTPClient ntpClient(ntpUDP); 
+
+TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120};     //Central European Summer Time
+TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       //Central European Standard Time
+Timezone timezone(CEST, CET);
+
+time_t utcEpoche,localeEpoche = 0;
 
 void TimeInit(){
-    ntp.ntpServer(settings.n_ntpserver); 
-    ntp.updateInterval(settings.n_ntpinterval); 
-    ntp.ruleDST("CEST", Last, Sun, Mar, 2, 120); // last sunday in march 2:00, timetone +120min (+1 GMT + 1h summertime offset)
-    ntp.ruleSTD("CET", Last, Sun, Oct, 3, 60); // last sunday in october 3:00, timezone +60min (+1 GMT)  
-    ntp.begin();
+    ntpClient.begin();
+    ntpClient.setUpdateInterval(settings.n_ntpinterval);
+    ntpClient.setPoolServerName(settings.n_ntpserver);
+    TimeTick();
 }
 
 void TimeTick(){
-    ntp.update();
+    ntpClient.update();
+    utcEpoche = ntpClient.getEpochTime();
+    localeEpoche = timezone.toLocal(utcEpoche);        
 }
 
 uint8 TimeSeconds(){
-    return ntp.seconds();
+    return second(localeEpoche);
 }
 
 uint8 TimeMinutes(){
-    return ntp.minutes();
+    return minute(localeEpoche);
 }
 
 uint8 TimeHours(){
-    return ntp.hours();
+    return hour(localeEpoche);
 }
 
 uint8 TimeDay(){
-    return ntp.day();
+    return day(localeEpoche);
 }
 
 uint8 TimeMonth(){
-    return ntp.month();
+    return month(localeEpoche);
 }
 
 uint16 TimeYear(){
-    return ntp.year();
+    return year(localeEpoche);
 }
 
-char* TimeformatedDateTime(){
-    return ntp.formattedTime("%d.%m.%Y %T");
+String TimeformatedDateTime(){
+    String day   = TimeDay() < 10 ? "0" + String(TimeDay()) : String(TimeDay());
+    String month = TimeMonth() < 10 ? "0" + String(TimeMonth()) : String(TimeMonth());
+    String year  = TimeYear() < 10 ? "0" + String(TimeYear()) : String(TimeYear());
+
+    return day + "." + month + "." + year + " " + TimeformatedTime();
 }
 
-char* TimeformatedTime(){
-    return ntp.formattedTime("%T");
+String TimeformatedTime(){    
+    String hoursStr = TimeHours() < 10 ? "0" + String(TimeHours()) : String(TimeHours());
+    String minuteStr = TimeMinutes() < 10 ? "0" + String(TimeMinutes()) : String(TimeMinutes());
+    String secondStr = TimeSeconds() < 10 ? "0" + String(TimeSeconds()) : String(TimeSeconds());
+
+    return hoursStr + ":" + minuteStr + ":" + secondStr;
 }

@@ -10,7 +10,7 @@
 #define EEPROM_START_ADDRESS    0
 #define EEPROM_SIZE             4095
 
-#define FW_VERSION              "0.12"
+#define FW_VERSION              "0.13"
 #define CONF_WEBSERVER_PORT     80
 #define CONF_WEBSOCKET_PORT     81
 #define CONF_SERIAL_BAUD        115200
