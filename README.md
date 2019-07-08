@@ -7,6 +7,42 @@
 
 ![wiring1](img/schematics.JPG)
 
+## Supported Layouts:
+#Ikeahacker caschoff.de (page gone):
+ES_IST_FÜNF
+ZEHNZWANZIG
+DREIVIERTEL
+NACHFUNKVOR  
+HALB_ELFÜNF
+EINS___ZWEI
+DREI___VIER
+SECHS__ACHT
+SIEBENZWÖLF
+ZEHNNEUNUHR
+
+#ulrichradig.de (project gone):
+ES_IST_FÜNF
+ZEHNZWANZIG
+DREIVIERTEL
+__NACHVOR__  
+HALB_ZWÖLF_
+ZWEINSIEBEN
+_DREI__FÜNF
+ELFNEUNVIER
+_ACHTZEHN__
+_SECHS_UHR_
+
+#mikrocontroller.net:
+ES_IST_FÜNF
+ZEHNZWANZIG
+DREIVIERTEL
+__NACHVOR__  
+HALB_ZWÖLF_
+ZWEINSIEBEN
+_DREI__FÜNF
+ELFNEUNVIER
+_ACHTZEHN__
+_SECHS__UHR
 
 ## Features:
 - defineable hardware layout (leds.h)
