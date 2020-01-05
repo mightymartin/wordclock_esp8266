@@ -5,6 +5,7 @@
 #include <Ticker.h>
 #include "logging.h"
 #include "settings.h"
+#include "draw.h"
 
 #define MQTT_MAX_PACKET_SIZE  1024
 

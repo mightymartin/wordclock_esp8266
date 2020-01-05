@@ -23,7 +23,6 @@ void SettingsSetDefaults(){
     strcpy(settings.version,FW_VERSION); 
     settings.u_LDR                   = 1;
     settings.u_MQTT                  = 0;
-    settings.u_TEMP                  = 1;
     settings.u_MDNS                  = 1;
     settings.u_LOGGING               = 2;
     settings.u_DISPLAYON             = 1;
@@ -56,6 +55,10 @@ void SettingsSetDefaults(){
     settings.d_clk_region            = 2;
     settings.d_clk_itis_mode         = 1;
     settings.d_clk_fade              = 1;
+    settings.d_temperatur            = 0;
+    settings.d_temperatur_timeout    = 5;
+    settings.d_text_speed            = 5;
+    strcpy(settings.d_text,          "");
 }
 
 void    SettingsWrite(){    
@@ -112,8 +115,6 @@ void    SettingsSetValue(String key, String value){
         settings.u_LDR = (uint8)value.toInt();
     }else if(key.equals(U_MQTT_TAG)){
         settings.u_MQTT = (uint8)value.toInt();
-    }else if(key.equals(U_TEMP_TAG)){
-        settings.u_TEMP = (uint8)value.toInt();
     }else if(key.equals(U_MDNS_TAG)){
         settings.u_MDNS = (uint8)value.toInt();
     }else if(key.equals(U_LOGG_TAG)){
@@ -168,6 +169,14 @@ void    SettingsSetValue(String key, String value){
         settings.d_clk_itis_mode = (uint8)value.toInt();
     }else if(key.equals(D_CLK_FADE_TAG)){    
         settings.d_clk_fade = (uint8)value.toInt();
+    }else if(key.equals(D_TEMP_TAG)){    
+        settings.d_temperatur = (uint8)value.toInt();
+    }else if(key.equals(D_TEMP_TIMEOUT_TAG)){    
+        settings.d_temperatur_timeout = (uint8)value.toInt();
+    }else if(key.equals(D_TEXT_TAG)){    
+        strcpy(settings.d_text, value.c_str());
+    }else if(key.equals(D_TEXT_SPEED_TAG)){    
+        settings.d_text_speed = (uint8)value.toInt();
     }        
 }
 
@@ -209,6 +218,9 @@ String    SettingsToJson(){
     jsonDest += getPropInt(D_CLK_REGION_TAG,            settings.d_clk_region);
     jsonDest += getPropInt(D_CLK_ITIS_MODE_TAG,         settings.d_clk_itis_mode);
     jsonDest += getPropInt(D_CLK_FADE_TAG,              settings.d_clk_fade); 
+    jsonDest += getPropInt(D_TEMP_TIMEOUT_TAG,          settings.d_temperatur_timeout);
+    jsonDest += getPropStr(D_TEXT_TAG,                  settings.d_text);
+    jsonDest += getPropInt(D_TEXT_SPEED_TAG,            settings.d_text_speed);
 
     jsonDest += getPropStr(N_HOSTNAME_TAG,              String(settings.n_hostname));
     jsonDest += getPropStr(G_VERSION,                   String(settings.version));

@@ -33,7 +33,6 @@
 
 #define U_LDR_TAG                   "ULDR"   
 #define U_MQTT_TAG                  "UMQTT" 
-#define U_TEMP_TAG                  "UTEMP" 
 #define U_MDNS_TAG                  "UMDNS" 
 #define U_LOGG_TAG                  "ULOGG" 
 #define U_ONOFF_TAG                 "UONOFF" 
@@ -63,6 +62,10 @@
 #define D_CLK_ITIS_MODE_TAG         "DITIS"
 #define D_CLK_FADE_TAG              "DFADE" 
 
+#define D_TEMP_TAG                  "DTEMP"
+#define D_TEMP_TIMEOUT_TAG          "DTETI"
+#define D_TEXT_TAG                  "DTEXT"
+#define D_TEXT_SPEED_TAG            "DTESP" 
 
 
 struct Settings_t{
@@ -70,7 +73,6 @@ struct Settings_t{
     char      version[5]              ; 
     uint8     u_LDR                   ;
     uint8     u_MQTT                  ;
-    uint8     u_TEMP                  ;
     uint8     u_MDNS                  ;
     uint8     u_LOGGING               ;
     uint8     u_DISPLAYON             ;
@@ -106,7 +108,10 @@ struct Settings_t{
     uint8       d_clk_region            ;
     uint8       d_clk_itis_mode         ;
     uint8       d_clk_fade              ;
-
+    uint8       d_temperatur            ;
+    uint8       d_temperatur_timeout    ;
+    uint8       d_text_speed            ;
+    char        d_text[256]             ;
     
 }  __attribute__((packed));
 

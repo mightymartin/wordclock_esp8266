@@ -9,12 +9,18 @@ static uint8 drawClockLastSeconds       = 0;
 static uint8 drawClockLastMinutes       = 0;
 static uint8 drawClockLastHour          = 0;
 
-static uint8 drawLastTemp               = 0;
+static uint8 drawLastTimoutCounter      = 0;
+
+static uint8 drawTextCurrChar           = 0;
+static int8  drawTextCurrPixel          = 0;
+
+static uint8 drawLastDrawMode           = 0;
+
 
 static Ticker DrawTimer(DrawUpdate, 1000);  
 
 void DrawInit(){
-    DrawTimer.start();
+    DrawTimer.start();    
     DrawUpdate();
 }
 
@@ -30,18 +36,69 @@ void DrawUpdate(){
     }
 
     if(settings.d_mode == DRAW_MODE_CLOCK){
+        DrawTimer.interval(1000);
+        drawLastDrawMode = settings.d_mode;
         if(TimeHours() != drawClockLastHour || TimeMinutes() != drawClockLastMinutes || forceUpdate == 1){   
             WebLogDebug("TIME: " + String(TimeHours()) + ":" + String(TimeMinutes()));              
             DrawUpdateClock(TimeHours(), TimeMinutes());
         }
     } else if(settings.d_mode == DRAW_MODE_SECONDS){
+        DrawTimer.interval(1000);
+        drawLastDrawMode = settings.d_mode;
         if(TimeSeconds() != drawClockLastSeconds || forceUpdate == 1){
             WebLogDebug("SEC: " + String(TimeSeconds()));
             DrawUpdateSeconds(TimeSeconds());
         }
     } else if(settings.d_mode == DRAW_MODE_TEMP){
-        if(21 != drawLastTemp || forceUpdate == 1){            
-            DrawUpdateTemp(21);
+        DrawTimer.interval(1000);
+        
+        if(settings.d_mode != DRAW_MODE_TEMP){
+            drawLastTimoutCounter = 0;
+        }
+
+        if(drawLastTimoutCounter <= settings.d_temperatur_timeout){
+            WebLogDebug("TEMP SHOW: " + String(settings.d_temperatur));         
+            DrawUpdateTemp(settings.d_temperatur);
+            drawLastTimoutCounter++;
+        }else{
+            WebLogDebug("TEMP SHOW DONE");              
+            settings.d_mode = drawLastDrawMode;
+            drawLastTimoutCounter = 0;
+        }        
+    } else if(settings.d_mode == DRAW_MODE_TEXT){
+        DrawTimer.interval(settings.d_text_speed * 50);
+        
+        String text = String(settings.d_text);
+        uint8_t charCount = text.length();        
+
+        if(settings.d_mode != DRAW_MODE_TEXT){
+            drawTextCurrChar = 0;
+        }
+
+        if(drawTextCurrChar + 2 < charCount){
+            uint8_t char1 = text.charAt(drawTextCurrChar);
+            uint8_t char2 = text.charAt(drawTextCurrChar + 1); 
+            uint8_t char3 = text.charAt(drawTextCurrChar + 2);
+            
+            LedClear(1);
+            WebLogDebug("TEXT SHOW:" + String(drawTextCurrPixel)); 
+
+            drawFontAt(char1,drawTextCurrPixel                          ,DRAW_FONT_YPOS_CENTER,1);     
+            drawFontAt(char2,drawTextCurrPixel + DRAW_FONT_WIDTH + 1    ,DRAW_FONT_YPOS_CENTER,1); 
+            drawFontAt(char3,drawTextCurrPixel + (2*(DRAW_FONT_WIDTH + 1)),DRAW_FONT_YPOS_CENTER,1); 
+
+            //drawTextCurrChar            
+            if(drawTextCurrPixel + DRAW_FONT_WIDTH == 0){ //ein char width left in OFFSCREEN
+                drawTextCurrPixel = 0;
+                drawTextCurrChar++;
+            }else{
+                drawTextCurrPixel--;
+            }
+        }else{
+            WebLogDebug("TEXT SHOW DONE");  
+            DrawTimer.interval(1000);
+            settings.d_mode = drawLastDrawMode;
+            drawTextCurrChar = 0;
         }
     } else {
         //drawmode not valid set default:
@@ -178,15 +235,17 @@ void DrawUpdateClock(uint8 hour,uint8 minutes){
 //#################
 //## text functions
 //#################
-void drawFontAt(uint8 character, uint8 atCol, uint8 atRow, uint8 hard){    
+void drawFontAt(uint8 character, int8 atCol, int8 atRow, uint8 hard){    
     uint8 mode = hard ? LED_STATIS_ON : LED_STATIS_FADEIN;
     for(uint8 fontCol=0; fontCol < DRAW_FONT_WIDTH;fontCol++){
         for(uint8 fontRow=0; fontRow < DRAW_FONT_HEIGTH; fontRow++){
-            uint8 row = atRow + fontRow;
-            uint8 col = atCol + fontCol;
-            if (font_7x5[character][fontCol] & (1 << fontRow)) {                  
-                LedSetStatusMatrix(row,col,mode);                
-            }
+            int8 row = atRow + fontRow;
+            int8 col = atCol + fontCol;
+            if(row >= 0 && col >= 0){
+                if (font_7x5[character][fontCol] & (1 << fontRow)) {                  
+                    LedSetStatusMatrix(row,col,mode);                
+                }
+            }            
         }
     }
 }

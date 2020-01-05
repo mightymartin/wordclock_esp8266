@@ -26,7 +26,7 @@ ESP8266HTTPUpdateServer httpUpdaterServer;
 
 void setup() {
   //### calm after reset
-  delay(500);
+  delay(250);
   
   //### Starte Serial  
   WebLogInit();

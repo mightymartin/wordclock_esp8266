@@ -314,17 +314,20 @@ void WebsiteModesPage(){
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Clock"));
     page.replace("{oval}", String(DRAW_MODE_CLOCK));
-    page.replace("{osel}", (settings.d_mode == DRAW_MODE_CLOCK) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.d_mode == DRAW_MODE_CLOCK) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Seconds"));
     page.replace("{oval}", String(DRAW_MODE_SECONDS));
-    page.replace("{osel}", (settings.d_mode == DRAW_MODE_SECONDS) ? F("selected") : F(""));
-    if(settings.u_TEMP == 1){
-        page += FPSTR(SITE_INP_CBX_OPT);  
-        page.replace("{otit}", F("Temperature"));
-        page.replace("{oval}", String(DRAW_MODE_TEMP));
-        page.replace("{osel}", (settings.d_mode == DRAW_MODE_TEMP) ? F("selected") : F(""));    
-    }
+    page.replace("{oopt}", (settings.d_mode == DRAW_MODE_SECONDS) ? F("selected") : F(""));
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Temperature"));
+    page.replace("{oval}", String(DRAW_MODE_TEMP));
+    page.replace("{oopt}", (settings.d_mode == DRAW_MODE_TEMP) ? F("selected disabled") : F("disabled"));    
+    page += FPSTR(SITE_INP_CBX_OPT);  
+    page.replace("{otit}", F("Text"));
+    page.replace("{oval}", String(DRAW_MODE_TEXT));
+    page.replace("{oopt}", (settings.d_mode == DRAW_MODE_TEXT) ? F("selected disabled") : F("disabled"));    
+
     page += FPSTR(SITE_INP_CBX_END); 
 
     page += FPSTR(SITE_INP_CBX_BGN);  
@@ -334,31 +337,31 @@ void WebsiteModesPage(){
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Plain"));
     page.replace("{oval}", String(COLOR_MODE_PLAIN));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_PLAIN) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.c_mode == COLOR_MODE_PLAIN) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Rainbow Serpentine"));
     page.replace("{oval}", String(COLOR_MODE_RAINBOW_SERPENTINE));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_SERPENTINE) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.c_mode == COLOR_MODE_RAINBOW_SERPENTINE) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Rainbow N->S"));
     page.replace("{oval}", String(COLOR_MODE_RAINBOW_VERTI));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_VERTI) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.c_mode == COLOR_MODE_RAINBOW_VERTI) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Rainbow S->N"));
     page.replace("{oval}", String(COLOR_MODE_RAINBOW_VERTI_I));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_VERTI_I) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.c_mode == COLOR_MODE_RAINBOW_VERTI_I) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Rainbow E->W"));
     page.replace("{oval}", String(COLOR_MODE_RAINBOW_HORI));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_HORI) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.c_mode == COLOR_MODE_RAINBOW_HORI) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Rainbow W->E"));
     page.replace("{oval}", String(COLOR_MODE_RAINBOW_HORI_I));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_RAINBOW_HORI_I) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.c_mode == COLOR_MODE_RAINBOW_HORI_I) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("Color Change"));
     page.replace("{oval}", String(COLOR_MODE_COLOR_CHANGE));
-    page.replace("{osel}", (settings.c_mode == COLOR_MODE_COLOR_CHANGE) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.c_mode == COLOR_MODE_COLOR_CHANGE) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_END);
 
     page += FPSTR(SITE_BUTTON);  
@@ -402,15 +405,15 @@ void WebsiteModesConfPage(){
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("West Germany"));
         page.replace("{oval}", String(DRAW_CLOCK_REGION_WEST));
-        page.replace("{osel}", (settings.d_clk_region == DRAW_CLOCK_REGION_WEST) ? F("selected") : F(""));
+        page.replace("{oopt}", (settings.d_clk_region == DRAW_CLOCK_REGION_WEST) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("East Germany"));
         page.replace("{oval}", String(DRAW_CLOCK_REGION_OST));
-        page.replace("{osel}", (settings.d_clk_region == DRAW_CLOCK_REGION_OST) ? F("selected") : F(""));
+        page.replace("{oopt}", (settings.d_clk_region == DRAW_CLOCK_REGION_OST) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("Rhine-Ruhr"));
         page.replace("{oval}", String(DRAW_CLOCK_REGION_POTT));
-        page.replace("{osel}", (settings.d_clk_region == DRAW_CLOCK_REGION_POTT) ? F("selected") : F(""));    
+        page.replace("{oopt}", (settings.d_clk_region == DRAW_CLOCK_REGION_POTT) ? F("selected") : F(""));    
         page += FPSTR(SITE_INP_CBX_END); 
 
         page += FPSTR(SITE_INP_CBX_BGN);  
@@ -420,15 +423,15 @@ void WebsiteModesConfPage(){
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("always off"));
         page.replace("{oval}", String(DRAW_CLOCK_ITIS_OFF));
-        page.replace("{osel}", (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_OFF) ? F("selected") : F(""));
+        page.replace("{oopt}", (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_OFF) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("full/half hour"));
         page.replace("{oval}", String(DRAW_CLOCK_ITIS_HOURNHALF));
-        page.replace("{osel}", (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_HOURNHALF) ? F("selected") : F(""));
+        page.replace("{oopt}", (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_HOURNHALF) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("always on"));
         page.replace("{oval}", String(DRAW_CLOCK_ITIS_PERMA));
-        page.replace("{osel}", (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_PERMA) ? F("selected") : F(""));    
+        page.replace("{oopt}", (settings.d_clk_itis_mode == DRAW_CLOCK_ITIS_PERMA) ? F("selected") : F(""));    
         page += FPSTR(SITE_INP_CBX_END); 
 
         page += FPSTR(SITE_INP_CBX_BGN);  
@@ -438,11 +441,11 @@ void WebsiteModesConfPage(){
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("yes"));
         page.replace("{oval}", F("1"));
-        page.replace("{osel}", (settings.d_clk_fade == 1) ? F("selected") : F(""));
+        page.replace("{oopt}", (settings.d_clk_fade == 1) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("no"));
         page.replace("{oval}", F("0"));
-        page.replace("{osel}", (settings.d_clk_fade == 0) ? F("selected") : F(""));
+        page.replace("{oopt}", (settings.d_clk_fade == 0) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_END); 
 
         page += F("<br/>");  
@@ -456,11 +459,11 @@ void WebsiteModesConfPage(){
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("yes"));
         page.replace("{oval}", F("1"));
-        page.replace("{osel}", (settings.c_hue_rotate_rb == 1) ? F("selected") : F(""));
+        page.replace("{oopt}", (settings.c_hue_rotate_rb == 1) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_OPT);  
         page.replace("{otit}", F("no"));
         page.replace("{oval}", F("0"));
-        page.replace("{osel}", (settings.c_hue_rotate_rb == 0) ? F("selected") : F(""));
+        page.replace("{oopt}", (settings.c_hue_rotate_rb == 0) ? F("selected") : F(""));
         page += FPSTR(SITE_INP_CBX_END); 
     }
 
@@ -501,6 +504,24 @@ void WebsiteModesConfPage(){
     }
 
     page += F("<br/>");  
+
+    page += FPSTR(SITE_INP_NR);  
+    page.replace("{tit}", F("Textspeed (x50ms)"));
+    page.replace("{id}",  F(D_TEXT_SPEED_TAG)); 
+    page.replace("{val}", String(settings.d_text_speed));
+    page.replace("{min}", F("1"));
+    page.replace("{max}", F("10"));
+    page.replace("{step}", F("1"));
+
+    page += FPSTR(SITE_INP_NR);  
+    page.replace("{tit}", F("Temperature Timeout (s)"));
+    page.replace("{id}",  F(D_TEMP_TIMEOUT_TAG)); 
+    page.replace("{val}", String(settings.d_temperatur_timeout));
+    page.replace("{min}", F("1"));
+    page.replace("{max}", F("10"));
+    page.replace("{step}", F("1"));
+
+    page += F("<br/>"); 
 
     page += FPSTR(SITE_INP_NR);  
     page.replace("{tit}", F("Overall Brightness"));
@@ -769,11 +790,11 @@ void WebsiteMiscConfigPage(){
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("yes"));
     page.replace("{oval}", F("1"));
-    page.replace("{osel}", (settings.u_MQTT == 1) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_MQTT == 1) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("no"));
     page.replace("{oval}", F("0"));
-    page.replace("{osel}", (settings.u_MQTT == 0) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_MQTT == 0) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_END);  
     
     page += FPSTR(SITE_INP_CBX_BGN);  
@@ -783,27 +804,13 @@ void WebsiteMiscConfigPage(){
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("yes"));
     page.replace("{oval}", F("1"));
-    page.replace("{osel}", (settings.u_LDR == 1) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_LDR == 1) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("no"));
     page.replace("{oval}", F("0"));
-    page.replace("{osel}", (settings.u_LDR == 0) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_LDR == 0) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_END);  
-
-    page += FPSTR(SITE_INP_CBX_BGN);  
-    page.replace("{tit}", F("use TEMPERATURE"));
-    page.replace("{val}", String(settings.u_TEMP));
-    page.replace("{id}",  F(U_TEMP_TAG)); 
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("yes"));
-    page.replace("{oval}", F("1"));
-    page.replace("{osel}", (settings.u_TEMP == 1) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_OPT);  
-    page.replace("{otit}", F("no"));
-    page.replace("{oval}", F("0"));
-    page.replace("{osel}", (settings.u_TEMP == 0) ? F("selected") : F(""));
-    page += FPSTR(SITE_INP_CBX_END);  
-
+    
     page += FPSTR(SITE_INP_CBX_BGN);  
     page.replace("{tit}", F("use MDNS"));
     page.replace("{val}", String(settings.u_MDNS));
@@ -811,11 +818,11 @@ void WebsiteMiscConfigPage(){
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("yes"));
     page.replace("{oval}", F("1"));
-    page.replace("{osel}", (settings.u_MDNS == 1) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_MDNS == 1) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("no"));
     page.replace("{oval}", F("0"));
-    page.replace("{osel}", (settings.u_MDNS == 0) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_MDNS == 0) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_END);  
 
     page += FPSTR(SITE_INP_CBX_BGN);  
@@ -825,19 +832,19 @@ void WebsiteMiscConfigPage(){
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("off"));
     page.replace("{oval}", String(LOGLEVEL_OFF));
-    page.replace("{osel}", (settings.u_LOGGING == LOGLEVEL_OFF) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_LOGGING == LOGLEVEL_OFF) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("error"));
     page.replace("{oval}", String(LOGLEVEL_ERR));
-    page.replace("{osel}", (settings.u_LOGGING == LOGLEVEL_ERR) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_LOGGING == LOGLEVEL_ERR) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("info"));
     page.replace("{oval}", String(LOGLEVEL_INF));
-    page.replace("{osel}", (settings.u_LOGGING == LOGLEVEL_INF) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_LOGGING == LOGLEVEL_INF) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_OPT);  
     page.replace("{otit}", F("debug"));
     page.replace("{oval}", String(LOGLEVEL_DBG));
-    page.replace("{osel}", (settings.u_LOGGING == LOGLEVEL_DBG) ? F("selected") : F(""));
+    page.replace("{oopt}", (settings.u_LOGGING == LOGLEVEL_DBG) ? F("selected") : F(""));
     page += FPSTR(SITE_INP_CBX_END); 
 
     page += FPSTR(SITE_BUTTON);  

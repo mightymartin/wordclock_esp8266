@@ -151,7 +151,7 @@ const char SITE_INP_NR[]        PROGMEM    = QUOTE( <b>{tit}</b> [{min}-{max}] (
 
 const char SITE_INP_CBX_BGN[]   PROGMEM    = QUOTE( <b>{tit}</b> ({val})<br/>
                                                     <select id="{id}" name="{id}"> );
-const char SITE_INP_CBX_OPT[]   PROGMEM    = QUOTE(     <option {osel} value="{oval}">{otit}</option> );
+const char SITE_INP_CBX_OPT[]   PROGMEM    = QUOTE(     <option {oopt} value="{oval}">{otit}</option> );
 const char SITE_INP_CBX_END[]   PROGMEM    = QUOTE( </select>
                                                     <br/>);                                                  
 

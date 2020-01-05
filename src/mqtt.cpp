@@ -51,27 +51,66 @@ void MQTTTick(){
 
 void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
     uint8   validCmd = 0;
+    uint8   validValue = 0;
     String  command = String(strrchr(topic, '/')).substring(1);
 
-    payload[length] = '\0'; //terminate that nasty boy
-    String value = String((char*)payload);  
+    payload[length] = '\0'; //terminate that nasty boy    
+    String value = String((char *)payload);  
+    
     uint8_t intValue = (uint8)value.toInt();
-
-    if( (command.equalsIgnoreCase(U_ONOFF_TAG) && intValue <= 9 ) ||
-        (command.equalsIgnoreCase(C_BRIGHTNESS_TAG) && intValue <= 31) ||
-        (command.equalsIgnoreCase(C_MODE_TAG) && intValue <= 9 ) ||
-        (command.equalsIgnoreCase(D_MODE_TAG) && intValue <= 9 ) 
-    ){
-        if(length > 0){            
-            SettingsSetValue(command,value);
-            validCmd = 1;
+    if(command.equalsIgnoreCase(U_ONOFF_TAG)){
+        validCmd = 1;
+        if(length > 0 && intValue <= 1){                        
+            validValue = 1;
         }        
     }
 
-    if(validCmd == 1){
+    if(command.equalsIgnoreCase(C_BRIGHTNESS_TAG)){
+        validCmd = 1;
+        if(length > 0 && intValue <= 31){                        
+            validValue = 1;
+        }        
+    }
+
+    if(command.equalsIgnoreCase(C_MODE_TAG)){
+        validCmd = 1;
+        if(length > 0 && intValue <= 6){                        
+            validValue = 1;
+        }        
+    }
+
+    if(command.equalsIgnoreCase(D_MODE_TAG)){
+        validCmd = 1;
+        if(length > 0 && intValue <= 3){                        
+            validValue = 1;
+        }        
+    }
+
+    if(command.equalsIgnoreCase(D_TEMP_TAG)){
+        validCmd = 1;
+        if(intValue >= 0 && length <= 99){    
+            SettingsSetValue(D_MODE_TAG,String(DRAW_MODE_TEMP));            
+            validValue = 1;                    
+        }
+    }
+
+    if(command.equalsIgnoreCase(D_TEXT_TAG)){
+        validCmd = 1;
+        if(length >= 3 && length < 255){    
+            SettingsSetValue(D_MODE_TAG,String(DRAW_MODE_TEXT));            
+            validValue = 1;                    
+        }
+    }
+
+    if(validCmd == 1 && validValue == 1){
+        SettingsSetValue(command,value);
         WebLogInfo(String(topic) + " = " +  value);        
-    }else{
+    }
+    if(validCmd == 0){
         WebLogInfo("MQTT invalid Command " + command + " : " +  value + ".");
+    }
+    if(validValue == 0){
+        WebLogInfo("MQTT invalid Value " + command + " : " +  value + ".");
     }
 }
 
@@ -99,4 +138,5 @@ void MQTTInit(){
         WebLogError("MQTT Missing Parameter"); 
     }
 }
+
 
