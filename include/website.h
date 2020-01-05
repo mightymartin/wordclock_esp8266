@@ -18,6 +18,7 @@
 
 #define REQ_CONFIG          "/cnf"
 #define REQ_CONF_MODES      "/cmo"
+#define REQ_CONF_DISPLAY    "/cdi"
 #define REQ_CONF_NETWORK    "/cne"
 #define REQ_CONF_MQTT       "/cmq"
 #define REQ_CONF_MISC       "/cmi"
@@ -207,6 +208,7 @@ extern void WebsiteStartPage();
 
 extern void WebsiteModesPage ();
 extern void WebsiteModesConfPage ();
+extern void WebsiteDisplayConfPage ();
 
 extern void WebsiteFirmwareUpdate();
 extern void WebsiteFactoryResetPage();
