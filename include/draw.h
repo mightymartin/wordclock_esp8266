@@ -17,6 +17,7 @@
 
 #define DRAW_FONT_XPOS1           0
 #define DRAW_FONT_XPOS2           LED_MATRIX_COLS - DRAW_FONT_WIDTH
+#define DRAW_FONT_XPOS_CENTER     (LED_MATRIX_COLS - DRAW_FONT_WIDTH) / 2
     
 #define DRAW_FONT_YPOS_TOP        0    
 #define DRAW_FONT_YPOS_CENTER     (LED_MATRIX_ROWS - DRAW_FONT_HEIGTH) / 2    
@@ -40,7 +41,7 @@ extern void DrawUpdateClock(uint8 hour,uint8 minutes);
 
 extern void DrawUpdateSeconds(uint8 seconds);
 extern void DrawUpdateText(String text);
-extern void DrawUpdateTemp(uint8 temperature);
+extern void DrawUpdateTemp(int8 temperature); 
 
 extern void drawFontAt(uint8 character, int8 atCol, int8 atRow, uint8 hard);
 

@@ -52,12 +52,7 @@ void DrawUpdate(){
     } else if(settings.d_mode == DRAW_MODE_TEMP){
         DrawTimer.interval(1000);
         
-        if(settings.d_mode != DRAW_MODE_TEMP){
-            drawLastTimoutCounter = 0;
-        }
-
-        if(drawLastTimoutCounter <= settings.d_temperatur_timeout){
-            WebLogDebug("TEMP SHOW: " + String(settings.d_temperatur));         
+        if(drawLastTimoutCounter <= settings.d_temperatur_timeout){            
             DrawUpdateTemp(settings.d_temperatur);
             drawLastTimoutCounter++;
         }else{
@@ -76,6 +71,7 @@ void DrawUpdate(){
         }
 
         if(drawTextCurrChar + 2 < charCount){
+            //####### more than 2 chars will be scrolled
             uint8_t char1 = text.charAt(drawTextCurrChar);
             uint8_t char2 = text.charAt(drawTextCurrChar + 1); 
             uint8_t char3 = text.charAt(drawTextCurrChar + 2);
@@ -87,7 +83,6 @@ void DrawUpdate(){
             drawFontAt(char2,drawTextCurrPixel + DRAW_FONT_WIDTH + 1    ,DRAW_FONT_YPOS_CENTER,1); 
             drawFontAt(char3,drawTextCurrPixel + (2*(DRAW_FONT_WIDTH + 1)),DRAW_FONT_YPOS_CENTER,1); 
 
-            //drawTextCurrChar            
             if(drawTextCurrPixel + DRAW_FONT_WIDTH == 0){ //ein char width left in OFFSCREEN
                 drawTextCurrPixel = 0;
                 drawTextCurrChar++;
@@ -95,8 +90,19 @@ void DrawUpdate(){
                 drawTextCurrPixel--;
             }
         }else{
+            //####### Done scrolling or text is shorter or equal to 2 chars
+            if(charCount > 0 && charCount == 1){
+                LedClear(1);
+                drawFontAt(text.charAt(0) ,DRAW_FONT_XPOS_CENTER, DRAW_FONT_YPOS_CENTER,1);     
+            }
+            if(charCount > 0 && charCount == 2){
+                LedClear(1);
+                drawFontAt(text.charAt(0) ,DRAW_FONT_XPOS1, DRAW_FONT_YPOS_CENTER,1);     
+                drawFontAt(text.charAt(1) ,DRAW_FONT_XPOS2, DRAW_FONT_YPOS_CENTER,1);     
+            }
+
             WebLogDebug("TEXT SHOW DONE");  
-            DrawTimer.interval(1000);
+            DrawTimer.interval(2000);
             settings.d_mode = drawLastDrawMode;
             drawTextCurrChar = 0;
         }
@@ -262,14 +268,29 @@ void DrawUpdateSeconds(uint8 seconds){
     drawFontAt(char2+48,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1);        
 } 
 
-void DrawUpdateTemp(uint8 temperature){
-    uint8 char1 = temperature / 10;
-    uint8 char2 = temperature % 10;
-    
-    LedClear(1);
+void DrawUpdateTemp(int8 temperature){
+    if(temperature < -10){
+        temperature = -9;
+    }
+    if(temperature > 99){
+        temperature = 99;        
+    }
 
-    drawFontAt(char1+48,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_CENTER,1);
-    drawFontAt(char2+48,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1); 
+    LedClear(1);    
+    if(temperature < 0){
+        uint8 char1 = '-';
+        uint8 char2 = temperature + 48;
+        drawFontAt(char1+48,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_CENTER,1);
+        drawFontAt(char2,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1);     
+    } else if (temperature < 10){
+        uint8 char1 = temperature + 48;        
+        drawFontAt(char1,DRAW_FONT_XPOS_CENTER,DRAW_FONT_YPOS_CENTER,1);
+    } else {
+        uint8 char1 = temperature / 10;
+        uint8 char2 = temperature % 10;
+        drawFontAt(char1+48,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_CENTER,1);
+        drawFontAt(char2+48,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1); 
+    }
 
     //celsius Punkt
     LedSetMinDot(0,1);

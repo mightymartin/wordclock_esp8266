@@ -108,7 +108,7 @@ struct Settings_t{
     uint8       d_clk_region            ;
     uint8       d_clk_itis_mode         ;
     uint8       d_clk_fade              ;
-    uint8       d_temperatur            ;
+    int8        d_temperatur            ;
     uint8       d_temperatur_timeout    ;
     uint8       d_text_speed            ;
     char        d_text[256]             ;

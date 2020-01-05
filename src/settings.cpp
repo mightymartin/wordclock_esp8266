@@ -170,7 +170,13 @@ void    SettingsSetValue(String key, String value){
     }else if(key.equals(D_CLK_FADE_TAG)){    
         settings.d_clk_fade = (uint8)value.toInt();
     }else if(key.equals(D_TEMP_TAG)){    
-        settings.d_temperatur = (uint8)value.toInt();
+        if(value.length()>0){
+            if(value.charAt(0) == '-'){                
+                settings.d_temperatur = value.substring(1).toInt() * -1;
+            }else{
+                settings.d_temperatur = value.toInt();
+            }
+        }     
     }else if(key.equals(D_TEMP_TIMEOUT_TAG)){    
         settings.d_temperatur_timeout = (uint8)value.toInt();
     }else if(key.equals(D_TEXT_TAG)){    
@@ -183,7 +189,7 @@ void    SettingsSetValue(String key, String value){
 const char PROP_STR[]    PROGMEM    = QUOTE( "{key}":"{val}", );
 const char PROP_INT[]    PROGMEM    = QUOTE( "{key}":{val}, );
 
-String  getPropInt(String key, uint32 val){
+String  getPropInt(String key, int32 val){
     String ret = FPSTR(PROP_INT);
     ret.replace("{key}", key);
     ret.replace("{val}", String(val) );
@@ -218,6 +224,7 @@ String    SettingsToJson(){
     jsonDest += getPropInt(D_CLK_REGION_TAG,            settings.d_clk_region);
     jsonDest += getPropInt(D_CLK_ITIS_MODE_TAG,         settings.d_clk_itis_mode);
     jsonDest += getPropInt(D_CLK_FADE_TAG,              settings.d_clk_fade); 
+    jsonDest += getPropInt(D_TEMP_TAG,                  settings.d_temperatur);
     jsonDest += getPropInt(D_TEMP_TIMEOUT_TAG,          settings.d_temperatur_timeout);
     jsonDest += getPropStr(D_TEXT_TAG,                  settings.d_text);
     jsonDest += getPropInt(D_TEXT_SPEED_TAG,            settings.d_text_speed);
