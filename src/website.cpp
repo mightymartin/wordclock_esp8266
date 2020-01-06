@@ -12,7 +12,8 @@ void WebsiteInit(ESP8266WebServer *server){
     _server->on(REQ_CONF_MISC, WebsiteMiscConfigPage);    
     _server->on(REQ_MODES, WebsiteModesPage);    
     _server->on(REQ_CONF_MODES, WebsiteModesConfPage);      
-    _server->on(REQ_CONF_DISPLAY, WebsiteDisplayConfPage);      
+    _server->on(REQ_CONF_DISPLAY, WebsiteDisplayConfPage);   
+    _server->on(REQ_ACTIONS, WebsiteUserActionPage);          
     _server->on(REQ_INFO, WebsiteInfoPage);
     _server->on(REQ_FACTORY_RESET, WebsiteFactoryResetPage);  
     _server->on(REQ_OTA_SELECT, WebsiteFirmwareUpdate);  
@@ -31,9 +32,15 @@ void WebsiteAction(){
         uint8 reqReboot = 0;
         if(_server->arg("ACTION").equalsIgnoreCase("ONOFF")){
             SettingsSetValue(U_ONOFF_TAG,String(!settings.u_DISPLAYON));
+        } else if(_server->arg("ACTION").equalsIgnoreCase("SETTEXT")){            
+            WebsideApplyArgs();             
+            SettingsSetValue(D_MODE_TAG,String(DRAW_MODE_TEXT)); 
+        } else if(_server->arg("ACTION").equalsIgnoreCase("SETTEMP")){
+            WebsideApplyArgs();
+            SettingsSetValue(D_MODE_TAG,String(DRAW_MODE_TEMP)); 
         } else if(_server->arg("ACTION").equalsIgnoreCase("SAVE")){
             WebsideApplyArgs();
-            SettingsWrite();            
+            SettingsWrite();  
         } else if(_server->arg("ACTION").equalsIgnoreCase("SAVER")){
             WebsideApplyArgs();
             SettingsWrite();            
@@ -106,6 +113,10 @@ void WebsiteStartPage(){
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Display Settings"));
     page.replace("{dest}", REQ_CONF_DISPLAY);
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Actions"));
+    page.replace("{dest}", REQ_ACTIONS);
 
     page += FPSTR(SITE_HREF);  
     page.replace("{tit}", F("Infos"));
@@ -392,84 +403,6 @@ void WebsiteModesPage(){
     WebsiteSend(page); 
 }
 
-void WebsiteDisplayConfPage(){
-    WebsiteAction();
-
-    String page = FPSTR(SITE_HEAD);    
-    page += FPSTR(SITE_BGN);  
-    page.replace("{pcat}" , F("Display Settings"));
-    
-    page += FPSTR(SITE_FORM_BGN);  
-    page.replace("{dest}", REQ_CONF_DISPLAY);
-
-    page += FPSTR(SITE_INP_NR);  
-    page.replace("{tit}", F("Textspeed (x50ms)"));
-    page.replace("{id}",  F(D_TEXT_SPEED_TAG)); 
-    page.replace("{val}", String(settings.d_text_speed));
-    page.replace("{min}", F("1"));
-    page.replace("{max}", F("10"));
-    page.replace("{step}", F("1"));
-
-    page += FPSTR(SITE_INP_NR);  
-    page.replace("{tit}", F("Temperature Timeout (s)"));
-    page.replace("{id}",  F(D_TEMP_TIMEOUT_TAG)); 
-    page.replace("{val}", String(settings.d_temperatur_timeout));
-    page.replace("{min}", F("1"));
-    page.replace("{max}", F("10"));
-    page.replace("{step}", F("1"));
-
-    page += FPSTR(SITE_INP_NR);  
-    page.replace("{tit}", F("Overall Brightness"));
-    page.replace("{id}",  F(C_BRIGHTNESS_TAG)); 
-    page.replace("{val}", String(settings.c_brightness));
-    page.replace("{min}", F("0"));
-    page.replace("{max}", F("31"));
-    page.replace("{step}", F("1"));
-
-    page += F("<br/>");  
-    
-    page += FPSTR(SITE_INP_NR);  
-    page.replace("{tit}", F("Auto ON hour"));
-    page.replace("{id}",  F(U_AUTOON_TAG)); 
-    page.replace("{val}", String(settings.u_AUTO_ON));
-    page.replace("{min}", F("0"));
-    page.replace("{max}", F("23"));
-    page.replace("{step}", F("1"));
-
-    page += FPSTR(SITE_INP_NR);  
-    page.replace("{tit}", F("Auto OFF hour"));
-    page.replace("{id}",  F(U_AUTOOFF_TAG)); 
-    page.replace("{val}", String(settings.u_AUTO_OFF));
-    page.replace("{min}", F("0"));
-    page.replace("{max}", F("23"));
-    page.replace("{step}", F("1"));
-
-    page += F("<br/>");  
-
-    page += FPSTR(SITE_BUTTON);  
-    page.replace("{tit}", F("Apply"));
-    page.replace("{id}",  F("ACTION"));
-    page.replace("{val}", F("APPLY"));
-    page.replace("{col}", F("bgrn"));
-
-    page += FPSTR(SITE_BUTTON);  
-    page.replace("{tit}", F("Save & Apply"));
-    page.replace("{id}",  F("ACTION"));
-    page.replace("{val}", F("SAVE"));
-    page.replace("{col}", F("bred"));
-
-    page += FPSTR(SITE_FORM_END); 
-
-    page += FPSTR(SITE_HREF);  
-    page.replace("{tit}", F("Back"));
-    page.replace("{dest}", REQ_START);
-
-    page += FPSTR(SITE_END); 
-     
-    WebsiteSend(page); 
-}
-
-
 void WebsiteModesConfPage(){
     WebsiteAction();
 
@@ -608,6 +541,131 @@ void WebsiteModesConfPage(){
      
     WebsiteSend(page); 
 }
+
+void WebsiteDisplayConfPage(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN);  
+    page.replace("{pcat}" , F("Display Settings"));
+    
+    page += FPSTR(SITE_FORM_BGN);  
+    page.replace("{dest}", REQ_CONF_DISPLAY);
+
+    page += FPSTR(SITE_INP_NR);  
+    page.replace("{tit}", F("Textspeed (x50ms)"));
+    page.replace("{id}",  F(D_TEXT_SPEED_TAG)); 
+    page.replace("{val}", String(settings.d_text_speed));
+    page.replace("{min}", F("1"));
+    page.replace("{max}", F("10"));
+    page.replace("{step}", F("1"));
+
+    page += FPSTR(SITE_INP_NR);  
+    page.replace("{tit}", F("Text Timeout (s)"));
+    page.replace("{id}",  F(D_TEXT_TIMEOUT_TAG)); 
+    page.replace("{val}", String(settings.d_text_timeout));
+    page.replace("{min}", F("1"));
+    page.replace("{max}", F("10"));
+    page.replace("{step}", F("1"));
+
+    page += FPSTR(SITE_INP_NR);  
+    page.replace("{tit}", F("Overall Brightness"));
+    page.replace("{id}",  F(C_BRIGHTNESS_TAG)); 
+    page.replace("{val}", String(settings.c_brightness));
+    page.replace("{min}", F("0"));
+    page.replace("{max}", F("31"));
+    page.replace("{step}", F("1"));
+
+    page += F("<br/>");  
+    
+    page += FPSTR(SITE_INP_N);  
+    page.replace("{tit}", F("Auto OFF hour"));
+    page.replace("{id}",  F(U_AUTOOFF_TAG)); 
+    page.replace("{val}", String(settings.u_AUTO_OFF));
+    page.replace("{min}", F("0"));
+    page.replace("{max}", F("23"));
+    page.replace("{step}", F("1"));
+
+    page += FPSTR(SITE_INP_N);  
+    page.replace("{tit}", F("Auto ON hour"));
+    page.replace("{id}",  F(U_AUTOON_TAG)); 
+    page.replace("{val}", String(settings.u_AUTO_ON));
+    page.replace("{min}", F("0"));
+    page.replace("{max}", F("23"));
+    page.replace("{step}", F("1"));
+
+    page += F("<br/>");  
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Apply"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("APPLY"));
+    page.replace("{col}", F("bgrn"));
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Save & Apply"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("SAVE"));
+    page.replace("{col}", F("bred"));
+
+    page += FPSTR(SITE_FORM_END); 
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Back"));
+    page.replace("{dest}", REQ_START);
+
+    page += FPSTR(SITE_END); 
+     
+    WebsiteSend(page); 
+}
+
+void WebsiteUserActionPage(){
+    WebsiteAction();
+
+    String page = FPSTR(SITE_HEAD);    
+    page += FPSTR(SITE_BGN);  
+    page.replace("{pcat}" , F("Actions"));
+    
+    page += FPSTR(SITE_FORM_BGN);  
+    page.replace("{dest}", REQ_START);
+
+    page += FPSTR(SITE_INP_T);  
+    page.replace("{tit}", F("Text"));
+    page.replace("{id}",  F(D_TEXT_TAG)); 
+    page.replace("{val}", String(settings.d_text));
+    page.replace("{len}", F("255"));
+
+    page += FPSTR(SITE_INP_N);  
+    page.replace("{tit}", F("Temperature"));
+    page.replace("{id}",  F(D_TEMP_TAG)); 
+    page.replace("{val}", String(settings.d_temperatur));
+    page.replace("{min}", F("-9"));
+    page.replace("{max}", F("99"));
+    page.replace("{step}", F("1"));
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Display Text"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("SETTEXT"));
+    page.replace("{col}", F("bgrn"));
+
+    page += FPSTR(SITE_BUTTON);  
+    page.replace("{tit}", F("Display Temperature"));
+    page.replace("{id}",  F("ACTION"));
+    page.replace("{val}", F("SETTEMP"));
+    page.replace("{col}", F("bgrn"));
+
+    page += FPSTR(SITE_FORM_END); 
+
+    page += FPSTR(SITE_HREF);  
+    page.replace("{tit}", F("Back"));
+    page.replace("{dest}", REQ_START);
+
+    page += FPSTR(SITE_END); 
+     
+    WebsiteSend(page); 
+}
+
 
 
 void WebsiteConfigPage(){

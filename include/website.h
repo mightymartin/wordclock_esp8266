@@ -11,6 +11,7 @@
 
 #define REQ_START           "/"
 #define REQ_MODES           "/mod"
+#define REQ_ACTIONS         "/act"
 
 #define REQ_INFO            "/inf"
 #define REQ_FACTORY_RESET   "/fcr"
@@ -209,6 +210,8 @@ extern void WebsiteStartPage();
 extern void WebsiteModesPage ();
 extern void WebsiteModesConfPage ();
 extern void WebsiteDisplayConfPage ();
+
+extern void WebsiteUserActionPage();
 
 extern void WebsiteFirmwareUpdate();
 extern void WebsiteFactoryResetPage();
