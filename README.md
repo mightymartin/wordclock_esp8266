@@ -56,6 +56,9 @@ _ S E C H S _ _ U H R
 - display hour and minutes
 - display seconds
 - display temperature
+- display marquee text
+- display startscreen
+- scheduled Auto ON / OFF Times
 - 8 different color modes with HUE rotate
 - wifimanger
 - Webserver http://deviceip:80 ( inspired by Tasmota and tzapu/wifimanager )
@@ -66,9 +69,6 @@ _ S E C H S _ _ U H R
 - MQTT Sub: ON/OFF && BRIGHTNESS && COLORMODE && DISPLAYMODE (Non persistent)
 - MQTT Pub: current config as JSON to broker
 - LDR driven brightness
-
-### planned improvements
-- tempsensor implementation
 
 
 ## Images
