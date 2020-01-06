@@ -20,8 +20,17 @@ static uint8 drawLastDrawMode           = 0;
 static Ticker DrawTimer(DrawUpdate, 1000);  
 
 void DrawInit(){
-    DrawTimer.start();    
+    DrawTimer.start();        
     DrawUpdate();
+
+    //Initital LED drawing
+    drawFontAt('W',DRAW_FONT_XPOS_CENTER,DRAW_FONT_YPOS_CENTER,1);    
+    LedSetMinDot(0,1);
+    LedSetMinDot(1,1);
+    LedSetMinDot(2,1);
+    LedSetMinDot(3,1);
+
+    LedUpdate();
 }
 
 void DrawTick(){
@@ -52,12 +61,12 @@ void DrawUpdate(){
     } else if(settings.d_mode == DRAW_MODE_TEMP){
         DrawTimer.interval(1000);
         
-        if(drawLastTimoutCounter <= settings.d_temperatur_timeout){            
+        if(drawLastTimoutCounter <= settings.d_text_timeout){            
             DrawUpdateTemp(settings.d_temperatur);
             drawLastTimoutCounter++;
         }else{
             WebLogDebug("TEMP SHOW DONE");              
-            settings.d_mode = drawLastDrawMode;
+            settings.d_mode = drawLastDrawMode;            
             drawLastTimoutCounter = 0;
         }        
     } else if(settings.d_mode == DRAW_MODE_TEXT){
@@ -66,24 +75,18 @@ void DrawUpdate(){
         String text = String(settings.d_text);
         uint8_t charCount = text.length();        
 
-        if(settings.d_mode != DRAW_MODE_TEXT){
-            drawTextCurrChar = 0;
-        }
-
         if(drawTextCurrChar + 2 < charCount){
             //####### more than 2 chars will be scrolled
             uint8_t char1 = text.charAt(drawTextCurrChar);
             uint8_t char2 = text.charAt(drawTextCurrChar + 1); 
             uint8_t char3 = text.charAt(drawTextCurrChar + 2);
             
-            LedClear(1);
-            WebLogDebug("TEXT SHOW:" + String(drawTextCurrPixel)); 
-
+            LedClear(1);            
             drawFontAt(char1,drawTextCurrPixel                          ,DRAW_FONT_YPOS_CENTER,1);     
             drawFontAt(char2,drawTextCurrPixel + DRAW_FONT_WIDTH + 1    ,DRAW_FONT_YPOS_CENTER,1); 
             drawFontAt(char3,drawTextCurrPixel + (2*(DRAW_FONT_WIDTH + 1)),DRAW_FONT_YPOS_CENTER,1); 
 
-            if(drawTextCurrPixel + DRAW_FONT_WIDTH == 0){ //ein char width left in OFFSCREEN
+            if(drawTextCurrPixel + DRAW_FONT_WIDTH == 0){ //one char width plus spacer left in OFFSCREEN
                 drawTextCurrPixel = 0;
                 drawTextCurrChar++;
             }else{
@@ -100,11 +103,18 @@ void DrawUpdate(){
                 drawFontAt(text.charAt(0) ,DRAW_FONT_XPOS1, DRAW_FONT_YPOS_CENTER,1);     
                 drawFontAt(text.charAt(1) ,DRAW_FONT_XPOS2, DRAW_FONT_YPOS_CENTER,1);     
             }
+            //clear text and counter
+            SettingsSetValue(D_TEXT_TAG,"");
+            drawTextCurrChar = 0;   
+            drawTextCurrPixel = 0;
 
+            //set intervall to wait for timeout            
+            DrawTimer.interval(settings.d_text_timeout * 1000);
+            
+            //switch back to last mode
+            settings.d_mode = drawLastDrawMode;            
+                     
             WebLogDebug("TEXT SHOW DONE");  
-            DrawTimer.interval(2000);
-            settings.d_mode = drawLastDrawMode;
-            drawTextCurrChar = 0;
         }
     } else {
         //drawmode not valid set default:
@@ -279,8 +289,8 @@ void DrawUpdateTemp(int8 temperature){
     LedClear(1);    
     if(temperature < 0){
         uint8 char1 = '-';
-        uint8 char2 = temperature + 48;
-        drawFontAt(char1+48,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_CENTER,1);
+        uint8 char2 = (temperature * -1) + 48;
+        drawFontAt(char1,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_CENTER,1);
         drawFontAt(char2,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1);     
     } else if (temperature < 10){
         uint8 char1 = temperature + 48;        
