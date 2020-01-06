@@ -124,7 +124,7 @@ bool NTPClient::update() {
         } 
         return this->forceUpdate();
     }
-    return true;
+    return false;
 }
 
 unsigned long NTPClient::getEpochTime() const {

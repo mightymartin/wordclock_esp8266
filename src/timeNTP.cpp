@@ -19,7 +19,7 @@ void TimeInit(){
 }
 
 void TimeTick(){
-    ntpClient.update();
+    ntpClient.update();        
     utcEpoche = ntpClient.getEpochTime();
     localeEpoche = timezone.toLocal(utcEpoche);        
 }
