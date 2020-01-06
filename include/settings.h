@@ -4,6 +4,7 @@
 #include <ESP8266WiFi.h> 
 #include <Arduino.h> 
 #include <EEPROM.h>
+#include <Ticker.h>
 
 #define QUOTE(...) #__VA_ARGS__
 
@@ -36,6 +37,8 @@
 #define U_MDNS_TAG                  "UMDNS" 
 #define U_LOGG_TAG                  "ULOGG" 
 #define U_ONOFF_TAG                 "UONOFF" 
+#define U_AUTOON_TAG                "UAON" 
+#define U_AUTOOFF_TAG               "UAOFF" 
 
 #define N_NTPINTERVAL_TAG           "NNTPI" 
 #define N_NTPSERVER_TAG             "NNTPS"
@@ -63,7 +66,7 @@
 #define D_CLK_FADE_TAG              "DFADE" 
 
 #define D_TEMP_TAG                  "DTEMP"
-#define D_TEMP_TIMEOUT_TAG          "DTETI"
+#define D_TEXT_TIMEOUT_TAG          "DTETI"
 #define D_TEXT_TAG                  "DTEXT"
 #define D_TEXT_SPEED_TAG            "DTESP" 
 
@@ -76,6 +79,8 @@ struct Settings_t{
     uint8     u_MDNS                  ;
     uint8     u_LOGGING               ;
     uint8     u_DISPLAYON             ;
+    uint8     u_AUTO_ON               ;
+    uint8     u_AUTO_OFF              ;
 
     //network
     uint32_t    n_ntpinterval           ;
@@ -109,9 +114,11 @@ struct Settings_t{
     uint8       d_clk_itis_mode         ;
     uint8       d_clk_fade              ;
     int8        d_temperatur            ;
-    uint8       d_temperatur_timeout    ;
-    uint8       d_text_speed            ;
     char        d_text[256]             ;
+
+    uint8       d_text_timeout          ;
+    uint8       d_text_speed            ;
+    
     
 }  __attribute__((packed));
 
@@ -130,6 +137,9 @@ extern String   SettingsToJson();
 extern void     SettingsWrite();
 extern void     SettingsRead();
 extern void     SettingsClear();
+
+extern void     SettingsTick();
+extern void     SettingsUpdate();
 
 extern void     SettingsWifiReset();
 extern void     SettingsSoftRestart();

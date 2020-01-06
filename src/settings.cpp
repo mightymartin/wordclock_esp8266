@@ -2,9 +2,35 @@
 #include "timeNTP.h"
 #include "logging.h"
 
+static Ticker SettingsTimer(SettingsUpdate, 1000);
+
 Settings_t settings;
 
 uint8 doRestart = 0;
+
+void SettingsTick(){
+    SettingsTimer.update();
+}
+
+void SettingsUpdate(){
+    //Need Restart
+    if(doRestart){
+        doRestart = 0;
+        ESP.reset();
+    }
+
+    //Time changed -> Auto On Off?
+    if(TimeMinutes() == 0){
+        if(TimeHours() == settings.u_AUTO_OFF){
+            settings.u_DISPLAYON = 0;
+            WebLogInfo("AUTO OFF"); 
+        }
+        if(TimeHours() == settings.u_AUTO_ON){
+            settings.u_DISPLAYON = 1;
+            WebLogInfo("AUTO ON"); 
+        }
+    }    
+}
 
 void    SettingsInit(){
     SettingsRead();
@@ -17,6 +43,7 @@ void    SettingsInit(){
     }else{
         WebLogInfo("Done");        
     }
+    SettingsTimer.start();
 }
 
 void SettingsSetDefaults(){
@@ -26,6 +53,9 @@ void SettingsSetDefaults(){
     settings.u_MDNS                  = 1;
     settings.u_LOGGING               = 2;
     settings.u_DISPLAYON             = 1;
+    settings.u_AUTO_ON               = 0;
+    settings.u_AUTO_OFF              = 0;
+
     settings.n_ntpinterval           = 60000;    
     strcpy(settings.n_ntpserver,    "de.pool.ntp.org");    
     strcpy(settings.n_hostname ,    String("wordclock"+String(ESP.getChipId())).c_str() );
@@ -56,7 +86,7 @@ void SettingsSetDefaults(){
     settings.d_clk_itis_mode         = 1;
     settings.d_clk_fade              = 1;
     settings.d_temperatur            = 0;
-    settings.d_temperatur_timeout    = 5;
+    settings.d_text_timeout          = 5;
     settings.d_text_speed            = 5;
     strcpy(settings.d_text,          "");
 }
@@ -121,6 +151,10 @@ void    SettingsSetValue(String key, String value){
         settings.u_LOGGING = (uint8)value.toInt();
     }else if(key.equals(U_ONOFF_TAG)){
         settings.u_DISPLAYON = (uint8)value.toInt();
+    }else if(key.equals(U_AUTOON_TAG)){
+        settings.u_AUTO_ON = (uint8)value.toInt();
+    }else if(key.equals(U_AUTOOFF_TAG)){
+        settings.u_AUTO_OFF = (uint8)value.toInt();    
     }else if(key.equals(N_NTPINTERVAL_TAG)){    
         settings.n_ntpinterval = (uint32)value.toInt();
     }else if(key.equals(N_NTPSERVER_TAG)){    
@@ -177,8 +211,8 @@ void    SettingsSetValue(String key, String value){
                 settings.d_temperatur = value.toInt();
             }
         }     
-    }else if(key.equals(D_TEMP_TIMEOUT_TAG)){    
-        settings.d_temperatur_timeout = (uint8)value.toInt();
+    }else if(key.equals(D_TEXT_TIMEOUT_TAG)){    
+        settings.d_text_timeout = (uint8)value.toInt();
     }else if(key.equals(D_TEXT_TAG)){    
         strcpy(settings.d_text, value.c_str());
     }else if(key.equals(D_TEXT_SPEED_TAG)){    
@@ -206,6 +240,8 @@ String  getPropStr(String key, String val){
 String    SettingsToJson(){ 
     String jsonDest = "{";   
     jsonDest += getPropInt(U_ONOFF_TAG,                 settings.u_DISPLAYON);
+    jsonDest += getPropInt(U_AUTOON_TAG,                settings.u_AUTO_ON);
+    jsonDest += getPropInt(U_AUTOOFF_TAG,               settings.u_AUTO_OFF);
 
     jsonDest += getPropInt(C_MODE_TAG,                  settings.c_mode);
     jsonDest += getPropInt(C_HUE_ROTATE_RB_TAG,         settings.c_hue_rotate_rb);
@@ -225,7 +261,7 @@ String    SettingsToJson(){
     jsonDest += getPropInt(D_CLK_ITIS_MODE_TAG,         settings.d_clk_itis_mode);
     jsonDest += getPropInt(D_CLK_FADE_TAG,              settings.d_clk_fade); 
     jsonDest += getPropInt(D_TEMP_TAG,                  settings.d_temperatur);
-    jsonDest += getPropInt(D_TEMP_TIMEOUT_TAG,          settings.d_temperatur_timeout);
+    jsonDest += getPropInt(D_TEXT_TIMEOUT_TAG,          settings.d_text_timeout);
     jsonDest += getPropStr(D_TEXT_TAG,                  settings.d_text);
     jsonDest += getPropInt(D_TEXT_SPEED_TAG,            settings.d_text_speed);
 
@@ -241,15 +277,9 @@ String    SettingsToJson(){
 }
 
 //##############
-//### Restart 
+//### misc. 
 //##############
-void    SettingsSoftRestart(){
+void SettingsSoftRestart(){
     doRestart = 1;
 }
 
-void    SettingsTick(){
-    if(doRestart){
-        doRestart = 0;
-        ESP.reset();
-    }
-}
