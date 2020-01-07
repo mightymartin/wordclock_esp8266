@@ -20,16 +20,18 @@ void SettingsUpdate(){
     }
 
     //Time changed -> Auto On Off?
-    if(TimeMinutes() == 0){
-        if(TimeHours() == settings.u_AUTO_OFF){
-            settings.u_DISPLAYON = 0;
-            WebLogInfo("AUTO OFF"); 
-        }
-        if(TimeHours() == settings.u_AUTO_ON){
-            settings.u_DISPLAYON = 1;
-            WebLogInfo("AUTO ON"); 
-        }
-    }    
+    if(settings.u_AUTO_OFF != settings.u_AUTO_ON){
+        if(TimeMinutes() == 0){
+            if(TimeHours() == settings.u_AUTO_OFF){
+                settings.u_DISPLAYON = 0;
+                WebLogInfo("AUTO OFF"); 
+            }
+            if(TimeHours() == settings.u_AUTO_ON){
+                settings.u_DISPLAYON = 1;
+                WebLogInfo("AUTO ON"); 
+            }
+        }    
+    }
 }
 
 void    SettingsInit(){
