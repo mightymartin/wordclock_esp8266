@@ -143,11 +143,11 @@ const char SITE_INP_T[]         PROGMEM    = QUOTE( <b>{tit}</b> [l:{len}] ({val
 					                                <input id="{id}" name="{id}" maxlength="{len}" value="{val}"><br/>
 					                                <br/>);
 
-const char SITE_INP_N[]         PROGMEM    = QUOTE( <b>{tit}</b> [{min}-{max}] ({val})<br/>
+const char SITE_INP_N[]         PROGMEM    = QUOTE( <b>{tit}</b> [{min} - {max}] ({val})<br/>
 					                                <input type="number" id="{id}" name="{id}" min="{min}" max="{max}" step="{step}" value="{val}"><br/>
 					                                <br/>);
 
-const char SITE_INP_NR[]        PROGMEM    = QUOTE( <b>{tit}</b> [{min}-{max}] ({val})<br/>
+const char SITE_INP_NR[]        PROGMEM    = QUOTE( <b>{tit}</b> [{min} - {max}] ({val})<br/>
 					                                <input type="range" id="{id}" name="{id}" min="{min}" max="{max}" step="{step}" value="{val}"><br/>
 					                                <br/>);
 

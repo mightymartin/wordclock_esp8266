@@ -86,7 +86,14 @@ void DrawUpdate(){
             drawFontAt(char2,drawTextCurrPixel + DRAW_FONT_WIDTH + 1    ,DRAW_FONT_YPOS_CENTER,1); 
             drawFontAt(char3,drawTextCurrPixel + (2*(DRAW_FONT_WIDTH + 1)),DRAW_FONT_YPOS_CENTER,1); 
 
-            if(drawTextCurrPixel + DRAW_FONT_WIDTH == 0){ //one char width plus spacer left in OFFSCREEN
+            //one char width 
+            uint8_t charWidth = DRAW_FONT_WIDTH;
+            if(drawTextCurrChar + 2 == charCount - 1){
+                //last char needs extra pixel at the end
+                charWidth++;
+            }
+
+            if(drawTextCurrPixel + charWidth == 0){ // shift to left until width is reached than jump to next char anf go on
                 drawTextCurrPixel = 0;
                 drawTextCurrChar++;
             }else{
@@ -279,8 +286,8 @@ void DrawUpdateSeconds(uint8 seconds){
 } 
 
 void DrawUpdateTemp(int8 temperature){
-    if(temperature < -10){
-        temperature = -9;
+    if(temperature < -99){
+        temperature = -99;
     }
     if(temperature > 99){
         temperature = 99;        
@@ -288,18 +295,22 @@ void DrawUpdateTemp(int8 temperature){
 
     LedClear(1);    
     if(temperature < 0){
-        uint8 char1 = '-';
-        uint8 char2 = (temperature * -1) + 48;
-        drawFontAt(char1,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_CENTER,1);
-        drawFontAt(char2,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1);     
-    } else if (temperature < 10){
+        temperature = (temperature * -1);
+        //minus 
+        LedSetStatusMatrix(1, 0, 1);
+        LedSetStatusMatrix(1, 1, 1);
+        LedSetStatusMatrix(1, 2, 1);
+        LedSetStatusMatrix(1, 3, 1);
+    }
+    
+    if (temperature < 10){
         uint8 char1 = temperature + 48;        
-        drawFontAt(char1,DRAW_FONT_XPOS_CENTER,DRAW_FONT_YPOS_CENTER,1);
+        drawFontAt(char1,DRAW_FONT_XPOS_CENTER,DRAW_FONT_YPOS_BOTTOM,1);
     } else {
         uint8 char1 = temperature / 10;
         uint8 char2 = temperature % 10;
-        drawFontAt(char1+48,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_CENTER,1);
-        drawFontAt(char2+48,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_CENTER,1); 
+        drawFontAt(char1+48,DRAW_FONT_XPOS1,DRAW_FONT_YPOS_BOTTOM,1);
+        drawFontAt(char2+48,DRAW_FONT_XPOS2,DRAW_FONT_YPOS_BOTTOM,1); 
     }
 
     //celsius Punkt

@@ -88,7 +88,7 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 
     if(command.equalsIgnoreCase(D_TEMP_TAG)){
         validCmd = 1;
-        if(length > 0 && length <= 2){    
+        if(length > 0 && length <= 3){    
             SettingsSetValue(D_MODE_TAG,String(DRAW_MODE_TEMP));            
             validValue = 1;                    
         }

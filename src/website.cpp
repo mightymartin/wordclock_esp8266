@@ -639,7 +639,7 @@ void WebsiteUserActionPage(){
     page.replace("{tit}", F("Temperature"));
     page.replace("{id}",  F(D_TEMP_TAG)); 
     page.replace("{val}", String(settings.d_temperatur));
-    page.replace("{min}", F("-9"));
+    page.replace("{min}", F("-99"));
     page.replace("{max}", F("99"));
     page.replace("{step}", F("1"));
 
